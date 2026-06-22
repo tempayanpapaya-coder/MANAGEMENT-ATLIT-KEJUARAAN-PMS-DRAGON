@@ -441,6 +441,27 @@
     .add-form > *:last-child { grid-column: 1/-1; }
     .athlete-table .td-actions { flex-direction: column; }
   }
+  
+  @media (max-width: 768px) {
+  .header-stats { display: none; }
+  .add-form { grid-template-columns: 1fr 1fr; }
+  .add-form > *:last-child { grid-column: 1/-1; }
+  .athlete-table .td-actions { flex-direction: column; }
+
+  /* Tambahan Baru Anti-Terpotong untuk Lapangan di HP */
+  .class-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .class-header div[style*="display:flex"] {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -578,17 +599,35 @@ function buildPanel(d) {
 
 function buildClass(d, c) {
   const athletes = data[d][c.id] || [];
+
   const rows = athletes.length
-    ? athletes.map((a,i) => `
-      <tr class="athlete-row" id="row-${a.id}" style="${a.status==='Gugur'?'opacity:0.6; background:rgba(200,16,46,0.05);':''}">
+    ? athletes.map((a,i) => {
+        // Berikan default Lapangan jika belum diatur sebelumnya
+        if (!a.lapangan) a.lapangan = 'A'; 
+        
+        return `
+      <tr class="athlete-row" id="row-${a.id}" style="${a.status==='Gugur'?'opacity:0.5; background:rgba(200,16,46,0.02);':''}">
         <td class="td-num">${i+1}</td>
         <td class="td-under">${escHtml(a.under)}</td>
         <td class="td-name">
           <span style="${a.status==='Gugur'?'text-decoration:line-through; color:var(--muted);':''}">${escHtml(a.name)}</span>
         </td>
         <td class="td-partai">Partai&nbsp;<strong>${escHtml(a.partai)}</strong></td>
-        <td><span class="hugo-chip ${a.hugo==='merah'?'chip-merah':'chip-biru'}">
-          ${a.hugo==='merah'?'🔴 Merah':'🔵 Biru'}</span></td>
+        
+        <td>
+          <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'lapangan', this.value)" 
+                  style="padding:5px; font-size:11px; background:var(--card); color:var(--gold); border:1px solid var(--gold); border-radius:4px; font-weight:bold;">
+            ${['A','B','C','D','E','F'].map(f => `<option value="${f}" ${a.lapangan===f?'selected':''}>Lap ${f}</option>`).join('')}
+          </select>
+        </td>
+
+        <td>
+          <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'hugo', this.value)" 
+                  style="padding:5px; font-size:11px; background:var(--card); color:${a.hugo==='merah'?'#ff4d4d':'#5B9BD5'}; border:1px solid ${a.hugo==='merah'?'var(--red)':'var(--blue-hugo)'}; border-radius:4px; font-weight:bold;">
+            <option value="merah" ${a.hugo==='merah'?'selected':''}>🔴 Merah</option>
+            <option value="biru" ${a.hugo==='biru'?'selected':''}>🔵 Biru</option>
+          </select>
+        </td>
         
         <td>
           <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'status', this.value)" 
@@ -598,6 +637,7 @@ function buildClass(d, c) {
             <option value="Gugur" ${a.status==='Gugur'?'selected':''}>🔴 Gugur</option>
           </select>
         </td>
+        
         <td>
           <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'medali', this.value)" 
                   style="padding:5px; font-size:11px; background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:4px;">
@@ -612,9 +652,9 @@ function buildClass(d, c) {
           <button class="btn-edit" onclick="openModal(${d},'${c.id}',${a.id})">✏️</button>
           <button class="btn-del"  onclick="deleteAthlete(${d},'${c.id}',${a.id})">🗑️</button>
         </td>
-      </tr>`).join('')
-    // Colspan diubah menjadi 8 agar sejajar mendatar
-    : `<tr class="empty-row"><td colspan="8"><span>Belum ada atlit — tambahkan lewat form di atas ☝️</span></td></tr>`;
+      </tr>`;
+    }).join('')
+    : `<tr class="empty-row"><td colspan="9"><span>Belum ada atlit — tambahkan lewat form di atas ☝️</span></td></tr>`;
 
   return `
   <div class="class-section" id="sec-${d}-${c.id}">
@@ -626,7 +666,8 @@ function buildClass(d, c) {
       </div>
       <span class="toggle-icon">▼</span>
     </div>
-    <div class="class-body" style="overflow-x: auto;"> <form class="add-form" onsubmit="addAthlete(event,${d},'${c.id}')">
+    <div class="class-body" style="overflow-x: auto;">
+      <form class="add-form" onsubmit="addAthlete(event,${d},'${c.id}')">
         <div class="form-group">
           <label>Under (kg)</label>
           <input name="under" type="text" placeholder="-45" required />
@@ -655,8 +696,8 @@ function buildClass(d, c) {
       <table class="athlete-table">
         <thead>
           <tr>
-            <th>#</th><th>Under</th><th>Nama Atlit</th><th>Partai</th><th>Hugo</th>
-            <th>Status</th><th>Medali</th><th>Aksi</th>
+            <th>#</th><th>Under</th><th>Nama Atlit</th><th>Partai</th>
+            <th>Lapangan</th><th>Hugo</th><th>Status</th><th>Medali</th><th>Aksi</th>
           </tr>
         </thead>
         <tbody id="tbody-${d}-${c.id}">${rows}</tbody>
@@ -664,6 +705,8 @@ function buildClass(d, c) {
     </div>
   </div>`;
 }
+
+
 
 // ── HUGO TOGGLE ─────────────────────────────────────────────────────
 const hugoState = {};
@@ -853,6 +896,14 @@ function renderMedalRekap() {
     </div>
   `;
 }
+// Fungsi untuk menyimpan pilihan Lapangan (Court) per kelas ke LocalStorage
+function saveField(day, cls, fieldLetter) {
+  const fields = JSON.parse(localStorage.getItem('pms_fields') || '{}');
+  fields[`${day}-${cls}`] = fieldLetter;
+  localStorage.setItem('pms_fields', JSON.stringify(fields));
+  // Opsional: jalankan fungsi rekap pementasan terdekat jika ada
+}
+
 
 
 // ── INIT ─────────────────────────────────────────────────────────────
