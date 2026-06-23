@@ -2,466 +2,212 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMS DRAGON SURAKARTA — Manajemen Pertandingan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PMS DRAGON SURAKARTA</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-  :root {
-    --red:       #C8102E;
-    --red-dark:  #8B0A1E;
-    --red-glow:  rgba(200,16,46,0.25);
-    --gold:      #D4A017;
-    --gold-lt:   #F0C040;
-    --black:     #0D0D0D;
-    --surface:   #161616;
-    --card:      #1E1E1E;
-    --border:    #2A2A2A;
-    --text:      #F0F0F0;
-    --muted:     #888;
-    --blue-hugo: #1565C0;
-    --blue-bg:   rgba(21,101,192,0.15);
-    --red-bg:    rgba(200,16,46,0.15);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-  }
-
-  /* ── HEADER ─────────────────────────────────────── */
-  header {
-    background: linear-gradient(135deg, #0D0D0D 0%, #1a0005 50%, #0D0D0D 100%);
-    border-bottom: 2px solid var(--red);
-    padding: 0;
-    position: relative;
-    overflow: hidden;
-  }
-  header::before {
-    content: '🐉';
-    position: absolute;
-    font-size: 220px;
-    opacity: 0.04;
-    right: -20px;
-    top: -30px;
-    pointer-events: none;
-  }
-  .header-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 28px 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .logo-badge {
-    width: 68px; height: 68px;
-    background: radial-gradient(circle, var(--red) 0%, var(--red-dark) 100%);
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    font-size: 32px;
-    flex-shrink: 0;
-    box-shadow: 0 0 20px var(--red-glow);
-  }
-  .header-text h1 {
-    font-family: 'Oswald', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gold-lt);
-    line-height: 1;
-  }
-  .header-text .subtitle {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-  .header-stats {
-    margin-left: auto;
-    display: flex;
-    gap: 24px;
-    text-align: center;
-  }
-  .stat-pill {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 16px;
-  }
-  .stat-pill .num {
-    font-family: 'Oswald', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--gold);
-    display: block;
-  }
-  .stat-pill .lbl {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  /* ── DAY TABS ────────────────────────────────────── */
-  .tabs-bar {
-    max-width: 1200px;
-    margin: 24px auto 0;
-    padding: 0 28px;
-    display: flex;
-    gap: 8px;
-  }
-  .tab-btn {
-    font-family: 'Oswald', sans-serif;
-    font-size: 15px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 10px 28px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    border-radius: 8px 8px 0 0;
-    cursor: pointer;
-    transition: all .2s;
-  }
-  .tab-btn:hover { color: var(--text); border-color: var(--red); }
-  .tab-btn.active {
-    background: var(--red);
-    color: #fff;
-    border-color: var(--red);
-    box-shadow: 0 -4px 16px var(--red-glow);
-  }
-
-  /* ── MAIN ────────────────────────────────────────── */
-  main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 28px 60px;
-  }
-  .day-panel { display: none; }
-  .day-panel.active { display: block; }
-
-  /* ── CLASS SECTIONS ──────────────────────────────── */
-  .class-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0 12px 12px 12px;
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
-  .class-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 20px;
-    cursor: pointer;
-    user-select: none;
-    border-bottom: 1px solid var(--border);
-  }
-  .class-header:hover { background: rgba(255,255,255,.03); }
-  .class-title-row { display: flex; align-items: center; gap: 12px; }
-  .class-badge {
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    padding: 3px 10px;
-    border-radius: 4px;
-    text-transform: uppercase;
-  }
-  .badge-prestasi   { background: var(--gold); color: #000; }
-  .badge-semi       { background: #7B2FBE; color: #fff; }
-  .badge-pemula     { background: #0D7840; color: #fff; }
-  .class-name {
-    font-family: 'Oswald', sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 1px;
-  }
-  .class-count {
-    font-size: 12px;
-    color: var(--muted);
-    margin-left: 8px;
-  }
-  .toggle-icon { font-size: 18px; transition: transform .3s; color: var(--muted); }
-  .class-section.collapsed .toggle-icon { transform: rotate(-90deg); }
-  .class-section.collapsed .class-body { display: none; }
-
-  /* ── ADD FORM ────────────────────────────────────── */
-  .add-form {
-    padding: 16px 20px;
-    background: rgba(255,255,255,.02);
-    border-bottom: 1px solid var(--border);
-    display: grid;
-    grid-template-columns: 90px 1fr 90px 1fr auto;
-    gap: 8px;
-    align-items: end;
-  }
-  .form-group { display: flex; flex-direction: column; gap: 4px; }
-  .form-group label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  input, select {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    padding: 8px 10px;
-    outline: none;
-    transition: border .2s;
-    width: 100%;
-  }
-  input:focus, select:focus { border-color: var(--red); }
-  select option { background: var(--card); }
-
-  .hugo-toggle { display: flex; gap: 6px; }
-  .hugo-btn {
-    flex: 1;
-    padding: 8px 6px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .5px;
-    transition: all .2s;
-    background: var(--card);
-    color: var(--muted);
-  }
-  .hugo-btn.active-red  { background: var(--red-bg); border-color: var(--red); color: var(--red); }
-  .hugo-btn.active-blue { background: var(--blue-bg); border-color: var(--blue-hugo); color: #5B9BD5; }
-
-  .btn-add {
-    background: var(--red);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 18px;
-    font-family: 'Oswald', sans-serif;
-    font-size: 14px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: background .2s, box-shadow .2s;
-    white-space: nowrap;
-    align-self: end;
-  }
-  .btn-add:hover { background: var(--red-dark); box-shadow: 0 0 12px var(--red-glow); }
-
-  /* ── ATHLETE TABLE ───────────────────────────────── */
-  .athlete-table { width: 100%; border-collapse: collapse; }
-  .athlete-table th {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--muted);
-    text-align: left;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  .athlete-table tr.athlete-row { transition: background .15s; }
-  .athlete-table tr.athlete-row:hover { background: rgba(255,255,255,.03); }
-  .athlete-table td { padding: 10px 16px; font-size: 13px; border-bottom: 1px solid #1e1e1e; vertical-align: middle; }
-  .athlete-table tr:last-child td { border-bottom: none; }
-
-  .td-num { color: var(--muted); font-size: 12px; width: 36px; }
-  .td-under { font-family: 'Oswald', sans-serif; font-size: 15px; color: var(--gold); }
-  .td-name { font-weight: 500; }
-  .td-partai { color: var(--muted); }
-  .hugo-chip {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .chip-merah { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
-  .chip-biru  { background: var(--blue-bg); color: #5B9BD5; border: 1px solid var(--blue-hugo); }
-
-  .td-actions { display: flex; gap: 6px; justify-content: flex-end; }
-  .btn-edit, .btn-del {
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-    padding: 4px 10px;
-    transition: all .2s;
-  }
-  .btn-edit { background: #2A2A2A; color: var(--text); }
-  .btn-edit:hover { background: var(--gold); color: #000; }
-  .btn-del { background: #2A2A2A; color: var(--muted); }
-  .btn-del:hover { background: #4A1020; color: var(--red); }
-
-  .empty-row td { text-align: center; color: var(--muted); font-size: 13px; padding: 24px; }
-  .empty-row td span { opacity: .5; }
-
-  /* ── INLINE EDIT ─────────────────────────────────── */
-  .edit-row td { padding: 8px 10px; background: rgba(200,16,46,.05); }
-  .edit-row input, .edit-row select {
-    padding: 6px 8px;
-    font-size: 12px;
-  }
-  .btn-save { background: var(--red); color: #fff; }
-  .btn-save:hover { background: var(--red-dark); }
-  .btn-cancel-edit { background: #2A2A2A; color: var(--muted); }
-
-  /* ── TOOLBAR ─────────────────────────────────────── */
-  .toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 0 8px;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .toolbar-left { display: flex; gap: 8px; align-items: center; }
-  .day-title {
-    font-family: 'Oswald', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gold-lt);
-  }
-  .day-date-input {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    font-size: 12px;
-    padding: 5px 10px;
-    width: 150px;
-  }
-  .toolbar-right { display: flex; gap: 8px; }
-  .btn-export {
-    background: transparent;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    border-radius: 6px;
-    padding: 7px 16px;
-    font-family: 'Oswald', sans-serif;
-    font-size: 13px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-export:hover { background: var(--gold); color: #000; }
-
-  /* ── MODAL ───────────────────────────────────────── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.7);
-    z-index: 100;
-    place-items: center;
-  }
-  .modal-overlay.open { display: grid; }
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--red);
-    border-radius: 14px;
-    padding: 28px;
-    width: min(480px, 90vw);
-    box-shadow: 0 0 40px var(--red-glow);
-  }
-  .modal h2 {
-    font-family: 'Oswald', sans-serif;
-    font-size: 20px;
-    color: var(--gold-lt);
-    margin-bottom: 20px;
-    letter-spacing: 1px;
-  }
-  .modal-form { display: flex; flex-direction: column; gap: 14px; }
-  .modal-form label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
-  .modal-actions { display: flex; gap: 8px; margin-top: 6px; }
-  .btn-modal-save {
-    flex: 1;
-    background: var(--red);
-    color: #fff;
-    border: none;
-    border-radius: 7px;
-    padding: 10px;
-    font-family: 'Oswald', sans-serif;
-    font-size: 15px;
-    letter-spacing: 1px;
-    cursor: pointer;
-  }
-  .btn-modal-save:hover { background: var(--red-dark); }
-  .btn-modal-cancel {
-    flex: 1;
-    background: var(--surface);
-    color: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 10px;
-    font-family: 'Oswald', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  .hugo-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .hugo-modal-btn {
-    padding: 10px;
-    border-radius: 7px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--muted);
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all .2s;
-    text-align: center;
-  }
-  .hugo-modal-btn.sel-red  { background: var(--red-bg); border-color: var(--red); color: var(--red); }
-  .hugo-modal-btn.sel-blue { background: var(--blue-bg); border-color: var(--blue-hugo); color: #5B9BD5; }
-
-  /* ── PRINT / EXPORT ──────────────────────────────── */
-  @media print {
-    header, .tabs-bar, .toolbar, .add-form, .btn-edit, .btn-del, .td-actions,
-    .btn-export, .toggle-icon { display: none !important; }
-    body { background: #fff; color: #000; }
-    .class-section { border: 1px solid #ccc; page-break-inside: avoid; }
-    .athlete-table th, .athlete-table td { color: #000; border-color: #ccc; }
-    .day-panel { display: block !important; }
-    .class-section.collapsed .class-body { display: block !important; }
-  }
-
-  @media (max-width: 768px) {
-    .header-stats { display: none; }
-    .add-form { grid-template-columns: 1fr 1fr; }
-    .add-form > *:last-child { grid-column: 1/-1; }
-    .athlete-table .td-actions { flex-direction: column; }
-  }
-  
-  @media (max-width: 768px) {
-  .header-stats { display: none; }
-  .add-form { grid-template-columns: 1fr 1fr; }
-  .add-form > *:last-child { grid-column: 1/-1; }
-  .athlete-table .td-actions { flex-direction: column; }
-
-  /* Tambahan Baru Anti-Terpotong untuk Lapangan di HP */
-  .class-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .class-header div[style*="display:flex"] {
-    width: 100%;
-    justify-content: space-between;
-    border-top: 1px solid var(--border);
-    padding-top: 8px;
-  }
+:root {
+  --red: #C8102E; --red-dark: #8B0A1E; --red-glow: rgba(200,16,46,0.3);
+  --gold: #D4A017; --gold-lt: #F0C040; --gold-glow: rgba(212,160,23,0.2);
+  --black: #0A0A0A; --surface: #141414; --card: #1C1C1C; --card2: #222;
+  --border: #2C2C2C; --border2: #383838;
+  --text: #F0F0F0; --muted: #777; --muted2: #555;
+  --blue: #1565C0; --blue-lt: #5B9BD5; --blue-bg: rgba(21,101,192,0.15);
+  --red-bg: rgba(200,16,46,0.12);
+  --green: #22c55e; --green-bg: rgba(34,197,94,0.12);
+  --purple: #7B2FBE; --purple-bg: rgba(123,47,190,0.12);
+  --radius: 10px; --radius-sm: 6px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-tap-highlight-color:transparent;}
+body{background:var(--black);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overscroll-behavior:none;}
 
+/* ═══ HEADER ═══════════════════════════════════════════ */
+header{background:linear-gradient(160deg,#0A0A0A 0%,#1a0408 60%,#0A0A0A 100%);border-bottom:2px solid var(--red);position:sticky;top:0;z-index:50;}
+header::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 80% 50%,rgba(200,16,46,0.06),transparent);pointer-events:none;}
+.header-inner{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.logo-img{height:48px;width:auto;flex-shrink:0;}
+.header-text h1{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;color:var(--gold-lt);line-height:1.1;}
+.header-text .sub{font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.header-stats{margin-left:auto;display:flex;gap:8px;}
+.stat-pill{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;text-align:center;}
+.stat-pill .num{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--gold);display:block;line-height:1;}
+.stat-pill .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+@media(max-width:480px){.header-stats{display:none;}.header-text h1{font-size:16px;}.logo-img{height:40px;}}
+
+/* ═══ TABS ══════════════════════════════════════════════ */
+.tabs-wrap{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:72px;z-index:40;}
+.tabs-bar{max-width:1100px;margin:0 auto;padding:0 16px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.tabs-bar::-webkit-scrollbar{display:none;}
+.tab-btn{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:10px 20px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--red);border-bottom-color:var(--red);}
+@media(max-width:480px){.tabs-wrap{top:64px;}}
+
+/* ═══ MAIN ══════════════════════════════════════════════ */
+main{max-width:1100px;margin:0 auto;padding:16px 16px calc(80px + var(--safe-bottom));}
+.day-panel{display:none;animation:fadeIn .2s ease;}
+.day-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* ═══ TOOLBAR ═══════════════════════════════════════════ */
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px;gap:10px;flex-wrap:wrap;}
+.toolbar-left{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.day-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;color:var(--gold-lt);}
+.day-date-input{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;padding:6px 10px;width:140px;}
+.toolbar-right{display:flex;gap:6px;flex-wrap:wrap;}
+.btn-tool{background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:var(--radius-sm);padding:7px 14px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-tool:hover{border-color:var(--gold);color:var(--gold);}
+.btn-tool.red{border-color:var(--red);color:var(--red);}
+.btn-tool.red:hover{background:var(--red);color:#fff;}
+
+/* ═══ CLASS SECTIONS ════════════════════════════════════ */
+.class-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.class-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none;gap:10px;}
+.class-header:hover{background:rgba(255,255,255,.02);}
+.class-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.class-badge{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;padding:3px 8px;border-radius:4px;text-transform:uppercase;}
+.badge-prestasi{background:var(--gold);color:#000;}
+.badge-semi{background:var(--purple);color:#fff;}
+.badge-pemula{background:#0D7840;color:#fff;}
+.class-name{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;}
+.class-count{font-size:11px;color:var(--muted);}
+.toggle-icon{font-size:14px;color:var(--muted);transition:transform .3s;flex-shrink:0;}
+.class-section.collapsed .toggle-icon{transform:rotate(-90deg);}
+.class-section.collapsed .class-body{display:none;}
+
+/* ═══ ADD FORM ══════════════════════════════════════════ */
+.add-form{padding:14px 16px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);}
+.add-form-title{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.form-grid{display:grid;grid-template-columns:80px 1fr 75px;gap:8px;margin-bottom:8px;}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.form-row-full{margin-bottom:8px;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+input,select{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border .2s;width:100%;-webkit-appearance:none;}
+input:focus,select:focus{border-color:var(--red);}
+select option{background:var(--card);}
+.hugo-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.hugo-btn{padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;background:var(--card);color:var(--muted);text-align:center;}
+.hugo-btn.active-red{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.hugo-btn.active-blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-lt);}
+.btn-add-main{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-add-main:hover{background:var(--red-dark);}
+@media(max-width:560px){.form-grid{grid-template-columns:70px 1fr 65px;gap:6px;}.form-grid-2{grid-template-columns:1fr 1fr;}}
+
+/* ═══ ATHLETE CARDS ═════════════════════════════════════ */
+.athletes-list{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+.athlete-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s;}
+.athlete-card.gugur{opacity:.55;}
+.athlete-card.juara{border-color:var(--gold);}
+.card-header{display:flex;align-items:center;padding:10px 14px;gap:10px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);}
+.card-num{font-family:'Oswald',sans-serif;font-size:11px;color:var(--muted);width:20px;flex-shrink:0;}
+.card-under{font-family:'Oswald',sans-serif;font-size:16px;color:var(--gold);font-weight:700;flex-shrink:0;min-width:44px;}
+.card-name{font-weight:600;font-size:14px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-medal-badge{font-size:18px;flex-shrink:0;}
+.card-actions{display:flex;gap:6px;margin-left:auto;flex-shrink:0;}
+.btn-card{background:transparent;border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:13px;padding:5px 9px;transition:all .2s;color:var(--muted);}
+.btn-card:hover{border-color:var(--gold);color:var(--gold);}
+.btn-card.del:hover{border-color:var(--red);color:var(--red);}
+
+/* ═══ MATCH ROUNDS ══════════════════════════════════════ */
+.card-rounds{padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px;}
+.rounds-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px;}
+.rounds-track{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
+/* Round pill */
+.round-pill{display:flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:4px 10px 4px 6px;font-size:12px;cursor:pointer;transition:all .2s;user-select:none;flex-shrink:0;}
+.round-pill:hover{border-color:var(--border2);}
+.round-dot{width:10px;height:10px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:background .2s;}
+.round-pill[data-result="menang"] .round-dot{background:var(--green);}
+.round-pill[data-result="kalah"] .round-dot{background:var(--red);}
+.round-pill[data-result="bye"] .round-dot{background:var(--gold);}
+.round-pill .round-lbl{color:var(--muted);font-size:11px;font-weight:500;}
+.round-pill[data-result="menang"] .round-lbl{color:var(--green);}
+.round-pill[data-result="kalah"] .round-lbl{color:var(--red);}
+.round-pill[data-result="bye"] .round-lbl{color:var(--gold);}
+.round-pill .round-partai{font-weight:700;color:var(--text);font-size:12px;}
+
+/* Add round button */
+.btn-add-round{background:transparent;border:1px dashed var(--border2);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-add-round:hover{border-color:var(--red);color:var(--red);}
+
+/* Status footer */
+.card-footer{display:flex;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.status-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.5px;}
+.status-badge.menunggu{background:rgba(119,119,119,.15);color:var(--muted);}
+.status-badge.bertanding{background:rgba(212,160,23,.15);color:var(--gold);}
+.status-badge.lanjut{background:var(--green-bg);color:var(--green);}
+.status-badge.gugur-badge{background:var(--red-bg);color:var(--red);}
+.status-badge.juara-badge{background:var(--gold-glow);color:var(--gold-lt);border:1px solid var(--gold);}
+.card-lapangan{font-size:11px;color:var(--muted);}
+.card-lapangan select{font-size:11px;padding:4px 6px;width:auto;display:inline;}
+.card-hugo-display{margin-left:auto;font-size:11px;font-weight:700;}
+.hugo-merah{color:var(--red);}
+.hugo-biru{color:var(--blue-lt);}
+
+/* Pemula: simple row */
+.athlete-card.pemula .card-rounds{display:none;}
+
+/* ═══ EMPTY ══════════════════════════════════════════════ */
+.empty-state{padding:32px;text-align:center;color:var(--muted);}
+.empty-state .empty-icon{font-size:36px;margin-bottom:8px;opacity:.4;}
+.empty-state p{font-size:13px;}
+
+/* ═══ MODAL ══════════════════════════════════════════════ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;place-items:start center;padding:20px;overflow-y:auto;}
+.modal-overlay.open{display:grid;}
+.modal{background:var(--card);border:1px solid var(--red);border-radius:14px;padding:24px;width:min(460px,100%);margin:auto;box-shadow:0 0 60px var(--red-glow);}
+.modal h2{font-family:'Oswald',sans-serif;font-size:18px;color:var(--gold-lt);margin-bottom:18px;letter-spacing:1px;}
+.modal-form{display:flex;flex-direction:column;gap:14px;}
+.modal-form label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+.btn-modal-save{flex:1;background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;}
+.btn-modal-save:hover{background:var(--red-dark);}
+.btn-modal-cancel{flex:1;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'Oswald',sans-serif;font-size:14px;cursor:pointer;}
+.hugo-modal-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.hugo-modal-btn{padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;text-align:center;transition:all .2s;}
+.hugo-modal-btn.sel-red{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.hugo-modal-btn.sel-blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-lt);}
+
+/* ═══ ROUND MODAL ════════════════════════════════════════ */
+.round-modal-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;}
+.result-opt{padding:14px 8px;border-radius:8px;border:2px solid var(--border);background:var(--card2);cursor:pointer;text-align:center;font-size:12px;font-weight:700;transition:all .2s;}
+.result-opt.menang{border-color:var(--green);color:var(--green);background:var(--green-bg);}
+.result-opt.kalah{border-color:var(--red);color:var(--red);background:var(--red-bg);}
+.result-opt.bye{border-color:var(--gold);color:var(--gold);background:var(--gold-glow);}
+.result-opt:not(.menang):not(.kalah):not(.bye):hover{border-color:var(--border2);}
+
+/* ═══ MEDALI REKAP ═══════════════════════════════════════ */
+.rekap-panel{background:var(--surface);border:1px solid var(--gold);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.rekap-title{font-family:'Oswald',sans-serif;font-size:16px;color:var(--gold-lt);letter-spacing:1px;margin-bottom:12px;}
+.rekap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.rekap-col{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;}
+.rekap-col-title{font-size:13px;font-weight:700;margin-bottom:8px;}
+.rekap-col ul{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.rekap-col li{font-size:11px;color:var(--muted);padding:4px 8px;background:rgba(255,255,255,.02);border-radius:4px;}
+@media(max-width:480px){.rekap-grid{grid-template-columns:1fr;}}
+
+/* ═══ FAB ════════════════════════════════════════════════ */
+.fab-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 16px calc(10px + var(--safe-bottom));background:linear-gradient(to top,var(--black) 60%,transparent);display:flex;gap:8px;z-index:30;}
+.fab-bar .btn-fab{flex:1;padding:14px;background:var(--red);color:#fff;border:none;border-radius:var(--radius);font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+.fab-bar .btn-fab.outline{background:transparent;border:1px solid var(--border2);color:var(--muted);}
+.fab-bar .btn-fab.outline:hover{border-color:var(--gold);color:var(--gold);}
+@media(min-width:768px){.fab-bar{display:none;}}
+
+/* ═══ PRINT ══════════════════════════════════════════════ */
+@media print{
+  header,.tabs-wrap,.toolbar,.add-form,.card-actions,.fab-bar,.btn-add-round,.card-rounds{display:none!important;}
+  body{background:#fff;color:#000;}
+  .class-section{border:1px solid #ccc;page-break-inside:avoid;margin-bottom:10px;}
+  .day-panel{display:block!important;}
+  .class-section.collapsed .class-body{display:block!important;}
+  .athlete-card{border:1px solid #ccc;margin-bottom:6px;break-inside:avoid;}
+  .card-header{border-bottom:1px solid #ccc;}
+  .card-name,.card-under{color:#000!important;}
+}
 </style>
 </head>
 <body>
@@ -469,444 +215,531 @@
 <!-- HEADER -->
 <header>
   <div class="header-inner">
- <img src="https://raw.githubusercontent.com/tempayanpapaya-coder/Sekak/refs/heads/main/dragon.png" alt="Logo Game Taekwondo" width="150">
+    <img src="https://raw.githubusercontent.com/tempayanpapaya-coder/Sekak/refs/heads/main/dragon.png" alt="Logo" class="logo-img">
     <div class="header-text">
       <h1>PMS DRAGON</h1>
-      <div class="subtitle">JUARA JUARA JUARA</div>
+      <div class="sub">Manajemen Pertandingan</div>
     </div>
     <div class="header-stats">
-      <div class="stat-pill">
-        <span class="num" id="total-atlit">0</span>
-        <span class="lbl">Total Atlit</span>
-      </div>
-      <div class="stat-pill">
-        <span class="num" id="total-merah">0</span>
-        <span class="lbl">Hugo Merah</span>
-      </div>
-      <div class="stat-pill">
-        <span class="num" id="total-biru">0</span>
-        <span class="lbl">Hugo Biru</span>
-      </div>
+      <div class="stat-pill"><span class="num" id="total-atlit">0</span><span class="lbl">Atlit</span></div>
+      <div class="stat-pill"><span class="num" id="total-merah">0</span><span class="lbl">🔴</span></div>
+      <div class="stat-pill"><span class="num" id="total-biru">0</span><span class="lbl">🔵</span></div>
     </div>
   </div>
 </header>
 
-<!-- DAY TABS -->
-<div class="tabs-bar">
-  <button class="tab-btn active" onclick="switchDay(0)">Hari 1</button>
-  <button class="tab-btn"       onclick="switchDay(1)">Hari 2</button>
-  <button class="tab-btn"       onclick="switchDay(2)">Hari 3</button>
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="switchDay(0)">📅 Hari 1</button>
+    <button class="tab-btn" onclick="switchDay(1)">📅 Hari 2</button>
+    <button class="tab-btn" onclick="switchDay(2)">📅 Hari 3</button>
+    <button class="tab-btn" onclick="switchDay(3)">🏆 Rekap</button>
+  </div>
 </div>
 
 <!-- MAIN -->
 <main>
-  <!-- ───────────── DAY PANELS ───────────── -->
   <div id="day-0" class="day-panel active"></div>
   <div id="day-1" class="day-panel"></div>
   <div id="day-2" class="day-panel"></div>
+  <div id="day-3" class="day-panel">
+    <div style="padding:12px 0 16px;">
+      <div style="font-family:'Oswald',sans-serif;font-size:20px;color:var(--gold-lt);letter-spacing:2px;">🏆 REKAP MEDALI</div>
+    </div>
+    <div id="papan-medali"></div>
+  </div>
 </main>
+
+<!-- FAB -->
+<div class="fab-bar">
+  <button class="btn-fab outline" onclick="window.print()">🖨️ Cetak</button>
+  <button class="btn-fab outline" onclick="exportCSV(activeDay)">📥 CSV</button>
+</div>
 
 <!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
-    <h2>✏️ Edit Data Atlit</h2>
+    <h2>✏️ Edit Atlit</h2>
     <div class="modal-form">
-      <div>
-        <label>Under (kg)</label>
-        <input type="text" id="m-under" placeholder="cth: -45, +87" />
-      </div>
-      <div>
-        <label>Nama Atlit</label>
-        <input type="text" id="m-name" placeholder="Nama lengkap" />
-      </div>
-      <div>
-        <label>Nomor Partai</label>
-        <input type="text" id="m-partai" placeholder="cth: 12" />
-      </div>
+      <div><label>Under (kg)</label><input type="text" id="m-under" placeholder="-45, +87"/></div>
+      <div><label>Nama Atlit</label><input type="text" id="m-name" placeholder="Nama lengkap"/></div>
       <div>
         <label>Warna Hugo</label>
         <div class="hugo-modal-row">
           <div class="hugo-modal-btn" id="m-btn-merah" onclick="selectModalHugo('merah')">🔴 MERAH</div>
-          <div class="hugo-modal-btn" id="m-btn-biru"  onclick="selectModalHugo('biru')">🔵 BIRU</div>
+          <div class="hugo-modal-btn" id="m-btn-biru" onclick="selectModalHugo('biru')">🔵 BIRU</div>
         </div>
       </div>
+      <div><label>Lapangan</label>
+        <select id="m-lapangan">
+          <option value="A">Lapangan A</option><option value="B">Lapangan B</option>
+          <option value="C">Lapangan C</option><option value="D">Lapangan D</option>
+          <option value="E">Lapangan E</option><option value="F">Lapangan F</option>
+        </select>
+      </div>
     </div>
-    <div class="modal-actions" style="margin-top:20px">
+    <div class="modal-actions">
       <button class="btn-modal-cancel" onclick="closeModal()">Batal</button>
-      <button class="btn-modal-save"   onclick="saveModal()">💾 Simpan</button>
+      <button class="btn-modal-save" onclick="saveModal()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND MODAL -->
+<div class="modal-overlay" id="roundModal">
+  <div class="modal">
+    <h2 id="round-modal-title">Babak Pertama</h2>
+    <div>
+      <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">No. Partai</label>
+      <input type="text" id="r-partai" placeholder="cth: 12" style="margin-top:4px;"/>
+    </div>
+    <div style="margin-top:14px;">
+      <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;">Hasil Tanding</label>
+      <div class="round-modal-opts">
+        <div class="result-opt menang" onclick="selectResult('menang')">✅<br>MENANG</div>
+        <div class="result-opt kalah" onclick="selectResult('kalah')">❌<br>KALAH</div>
+        <div class="result-opt bye" onclick="selectResult('bye')">⏭️<br>BYE / WALKOVER</div>
+      </div>
+    </div>
+    <div id="r-selected" style="margin-top:12px;font-size:12px;color:var(--muted);min-height:20px;"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeRoundModal()">Batal</button>
+      <button class="btn-modal-save" onclick="saveRound()">💾 Simpan Babak</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── STATE ─────────────────────────────────────────────────────────
-const DAYS  = ['Hari Pertama', 'Hari Kedua', 'Hari Ketiga'];
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+const DAYS = ['Hari Pertama','Hari Kedua','Hari Ketiga'];
 const CLASSES = [
-  { id:'prestasi', label:'Prestasi',     badge:'badge-prestasi' },
-  { id:'semi',     label:'Semi Prestasi',badge:'badge-semi'     },
-  { id:'pemula',   label:'Pemula',       badge:'badge-pemula'   },
+  {id:'prestasi', label:'Prestasi',     badge:'badge-prestasi', multiRound:true },
+  {id:'semi',     label:'Semi Prestasi',badge:'badge-semi',     multiRound:true },
+  {id:'pemula',   label:'Pemula',       badge:'badge-pemula',   multiRound:false},
 ];
+const LAPANGAN = ['A','B','C','D','E','F'];
+const BABAK_NAMES = ['Babak 1','Babak 2','Babak 3','Babak 4','Babak 5','Babak 6'];
+const MEDAL_ICONS = {Emas:'🥇',Perak:'🥈',Perunggu:'🥉'};
 
-// data[day][class] = [ {id, under, name, partai, hugo}, ... ]
-let data = { 0:{}, 1:{}, 2:{} };
-CLASSES.forEach(c => {
-  for(let d=0;d<3;d++) data[d][c.id] = [];
-});
+let data = {0:{},1:{},2:{}};
+CLASSES.forEach(c=>{for(let d=0;d<3;d++) data[d][c.id]=[];});
+let activeDay=0, editTarget=null, roundTarget=null;
+let modalHugo='merah', roundResult=null;
+let idCounter=1;
 
-let activeDay = 0;
-let editTarget = null; // {day, cls, id}
-let modalHugo  = 'merah';
-let idCounter  = 1;
-
-// ── LOAD / SAVE LOCALSTORAGE ───────────────────────────────────────
-function save() {
-  localStorage.setItem('pms_dragon', JSON.stringify({data, idCounter}));
-  updateStats();
+// ════════════════════════════════════════════════════════
+//  STORAGE
+// ════════════════════════════════════════════════════════
+function save(){localStorage.setItem('pms_v2',JSON.stringify({data,idCounter}));updateStats();}
+function load(){
+  const raw=localStorage.getItem('pms_v2');
+  if(raw){const p=JSON.parse(raw);data=p.data;idCounter=p.idCounter||1;}
 }
-function load() {
-  const raw = localStorage.getItem('pms_dragon');
-  if(raw) {
-    const p = JSON.parse(raw);
-    data      = p.data;
-    idCounter = p.idCounter || 1;
+
+// ════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════
+function esc(s=''){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function getAthleteStatus(a,cls){
+  const c=CLASSES.find(x=>x.id===cls);
+  if(!c.multiRound){
+    if(!a.rounds||a.rounds.length===0) return 'menunggu';
+    const last=a.rounds[a.rounds.length-1];
+    if(last.result==='kalah') return 'gugur';
+    return 'lanjut';
   }
+  if(!a.rounds||a.rounds.length===0) return 'menunggu';
+  const last=a.rounds[a.rounds.length-1];
+  if(last.result==='kalah') return 'gugur';
+  if(a.medali&&a.medali!=='Tanpa Medali') return 'juara';
+  return 'lanjut';
 }
 
-// ── BUILD PANEL ────────────────────────────────────────────────────
-function buildAllPanels() {
-  for(let d=0;d<3;d++) buildPanel(d);
+function statusLabel(st){
+  const map={
+    menunggu:'<span class="status-badge menunggu">⏳ Menunggu</span>',
+    bertanding:'<span class="status-badge bertanding">⚔️ Bertanding</span>',
+    lanjut:'<span class="status-badge lanjut">🟢 Lanjut</span>',
+    gugur:'<span class="status-badge gugur-badge">❌ Gugur</span>',
+    juara:'<span class="status-badge juara-badge">🏆 Juara</span>',
+  };
+  return map[st]||map.menunggu;
 }
 
-function buildPanel(d) {
-  const el = document.getElementById('day-'+d);
-  let dayDates = JSON.parse(localStorage.getItem('pms_dates')||'{}');
-  const dateVal = dayDates[d] || '';
-  el.innerHTML = `
+// ════════════════════════════════════════════════════════
+//  BUILD
+// ════════════════════════════════════════════════════════
+function buildAllPanels(){for(let d=0;d<3;d++) buildPanel(d);renderMedalRekap();}
+
+function buildPanel(d){
+  const el=document.getElementById('day-'+d);
+  if(!el) return;
+  const dayDates=JSON.parse(localStorage.getItem('pms_dates')||'{}');
+  const dateVal=dayDates[d]||'';
+  el.innerHTML=`
     <div class="toolbar">
       <div class="toolbar-left">
         <span class="day-title">${DAYS[d]}</span>
-        <input class="day-date-input" type="date" value="${dateVal}"
-               onchange="saveDate(${d},this.value)" title="Tanggal hari ke-${d+1}" />
+        <input class="day-date-input" type="date" value="${dateVal}" onchange="saveDate(${d},this.value)"/>
       </div>
       <div class="toolbar-right">
-        <button class="btn-export" onclick="printDay(${d})">🖨️ Cetak Hari Ini</button>
-        <button class="btn-export" onclick="exportCSV(${d})">📥 Export CSV</button>
+        <button class="btn-tool" onclick="printDay(${d})">🖨️ Cetak</button>
+        <button class="btn-tool" onclick="exportCSV(${d})">📥 CSV</button>
+        <button class="btn-tool red" onclick="if(confirm('Reset semua data hari ini?')){resetDay(${d});}">🗑️ Reset</button>
       </div>
     </div>
-    ${CLASSES.map(c => buildClass(d,c)).join('')}
+    ${CLASSES.map(c=>buildClass(d,c)).join('')}
   `;
 }
 
-function buildClass(d, c) {
-  const athletes = data[d][c.id] || [];
-
-  const rows = athletes.length
-    ? athletes.map((a,i) => {
-        // Berikan default Lapangan jika belum diatur sebelumnya
-        if (!a.lapangan) a.lapangan = 'A'; 
-        
-        return `
-      <tr class="athlete-row" id="row-${a.id}" style="${a.status==='Gugur'?'opacity:0.5; background:rgba(200,16,46,0.02);':''}">
-        <td class="td-num">${i+1}</td>
-        <td class="td-under">${escHtml(a.under)}</td>
-        <td class="td-name">
-          <span style="${a.status==='Gugur'?'text-decoration:line-through; color:var(--muted);':''}">${escHtml(a.name)}</span>
-        </td>
-        <td class="td-partai">Partai&nbsp;<strong>${escHtml(a.partai)}</strong></td>
-        
-        <td>
-          <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'lapangan', this.value)" 
-                  style="padding:5px; font-size:11px; background:var(--card); color:var(--gold); border:1px solid var(--gold); border-radius:4px; font-weight:bold;">
-            ${['A','B','C','D','E','F'].map(f => `<option value="${f}" ${a.lapangan===f?'selected':''}>Lap ${f}</option>`).join('')}
-          </select>
-        </td>
-
-        <td>
-          <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'hugo', this.value)" 
-                  style="padding:5px; font-size:11px; background:var(--card); color:${a.hugo==='merah'?'#ff4d4d':'#5B9BD5'}; border:1px solid ${a.hugo==='merah'?'var(--red)':'var(--blue-hugo)'}; border-radius:4px; font-weight:bold;">
-            <option value="merah" ${a.hugo==='merah'?'selected':''}>🔴 Merah</option>
-            <option value="biru" ${a.hugo==='biru'?'selected':''}>🔵 Biru</option>
-          </select>
-        </td>
-        
-        <td>
-          <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'status', this.value)" 
-                  style="padding:5px; font-size:11px; background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:4px;">
-            <option value="Menunggu" ${a.status==='Menunggu'?'selected':''}>⏳ Tunggu</option>
-            <option value="Lanjut Babak" ${a.status==='Lanjut Babak'?'selected':''}>🟢 Lanjut</option>
-            <option value="Gugur" ${a.status==='Gugur'?'selected':''}>🔴 Gugur</option>
-          </select>
-        </td>
-        
-        <td>
-          <select onchange="updateMatchStatus(${d}, '${c.id}', ${a.id}, 'medali', this.value)" 
-                  style="padding:5px; font-size:11px; background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:4px;">
-            <option value="Tanpa Medali" ${a.medali==='Tanpa Medali' || !a.medali?'selected':''}>-</option>
-            <option value="Emas" ${a.medali==='Emas'?'selected':''}>🥇 Emas</option>
-            <option value="Perak" ${a.medali==='Perak'?'selected':''}>🥈 Perak</option>
-            <option value="Perunggu" ${a.medali==='Perunggu'?'selected':''}>🥉 Perunggu</option>
-          </select>
-        </td>
-
-        <td class="td-actions">
-          <button class="btn-edit" onclick="openModal(${d},'${c.id}',${a.id})">✏️</button>
-          <button class="btn-del"  onclick="deleteAthlete(${d},'${c.id}',${a.id})">🗑️</button>
-        </td>
-      </tr>`;
-    }).join('')
-    : `<tr class="empty-row"><td colspan="9"><span>Belum ada atlit — tambahkan lewat form di atas ☝️</span></td></tr>`;
-
+function buildClass(d,c){
+  const athletes=data[d][c.id]||[];
+  const count=athletes.length;
+  const cardsHtml=count
+    ? athletes.map((a,i)=>buildAthleteCard(d,c,a,i)).join('')
+    : `<div class="empty-state"><div class="empty-icon">🥋</div><p>Belum ada atlit. Tambahkan lewat form di atas.</p></div>`;
   return `
   <div class="class-section" id="sec-${d}-${c.id}">
     <div class="class-header" onclick="toggleSection('sec-${d}-${c.id}')">
       <div class="class-title-row">
         <span class="class-badge ${c.badge}">${c.label}</span>
         <span class="class-name">Kelas ${c.label}</span>
-        <span class="class-count">(${athletes.length} atlit)</span>
+        <span class="class-count">${count} atlit</span>
       </div>
       <span class="toggle-icon">▼</span>
     </div>
-    <div class="class-body" style="overflow-x: auto;">
-      <form class="add-form" onsubmit="addAthlete(event,${d},'${c.id}')">
-        <div class="form-group">
-          <label>Under (kg)</label>
-          <input name="under" type="text" placeholder="-45" required />
-        </div>
-        <div class="form-group">
-          <label>Nama Atlit</label>
-          <input name="name" type="text" placeholder="Nama lengkap" required />
-        </div>
-        <div class="form-group">
-          <label>No. Partai</label>
-          <input name="partai" type="text" placeholder="12" required />
-        </div>
-        <div class="form-group">
-          <label>Warna Hugo</label>
-          <div class="hugo-toggle">
-            <button type="button" class="hugo-btn active-red"
-                    id="hbtn-${d}-${c.id}-merah"
-                    onclick="setHugo('${d}','${c.id}','merah')">🔴 Merah</button>
-            <button type="button" class="hugo-btn"
-                    id="hbtn-${d}-${c.id}-biru"
-                    onclick="setHugo('${d}','${c.id}','biru')">🔵 Biru</button>
-          </div>
-        </div>
-        <button type="submit" class="btn-add">+ Tambah</button>
-      </form>
-      <table class="athlete-table">
-        <thead>
-          <tr>
-            <th>#</th><th>Under</th><th>Nama Atlit</th><th>Partai</th>
-            <th>Lapangan</th><th>Hugo</th><th>Status</th><th>Medali</th><th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-${d}-${c.id}">${rows}</tbody>
-      </table>
+    <div class="class-body">
+      ${buildAddForm(d,c)}
+      <div class="athletes-list">${cardsHtml}</div>
     </div>
   </div>`;
 }
 
+function buildAddForm(d,c){
+  return `
+  <div class="add-form">
+    <div class="add-form-title">➕ Tambah Atlit ${c.label}</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Under (kg)</label><input name="under" type="text" placeholder="-45" id="f-under-${d}-${c.id}"/></div>
+      <div class="form-group"><label>Nama Atlit</label><input name="name" type="text" placeholder="Nama lengkap" id="f-name-${d}-${c.id}"/></div>
+      <div class="form-group"><label>No. Partai</label><input name="partai" type="text" placeholder="12" id="f-partai-${d}-${c.id}"/></div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label>Lapangan</label>
+        <select id="f-lap-${d}-${c.id}">
+          ${LAPANGAN.map(l=>`<option value="${l}">Lapangan ${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Warna Hugo</label>
+        <div class="hugo-toggle">
+          <button type="button" class="hugo-btn active-red" id="hbtn-${d}-${c.id}-merah" onclick="setHugo('${d}','${c.id}','merah')">🔴 Merah</button>
+          <button type="button" class="hugo-btn" id="hbtn-${d}-${c.id}-biru" onclick="setHugo('${d}','${c.id}','biru')">🔵 Biru</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn-add-main" onclick="addAthlete(${d},'${c.id}')">+ TAMBAH ATLIT</button>
+  </div>`;
+}
 
+function buildAthleteCard(d,c,a,i){
+  const st=getAthleteStatus(a,c.id);
+  const medalIcon=a.medali&&a.medali!=='Tanpa Medali'?MEDAL_ICONS[a.medali]:'';
+  const rounds=a.rounds||[];
+  const hugoColor=a.hugo==='merah'?'hugo-merah':'hugo-biru';
+  const hugoLabel=a.hugo==='merah'?'🔴 Merah':'🔵 Biru';
+  const isMulti=c.multiRound;
 
-// ── HUGO TOGGLE ─────────────────────────────────────────────────────
-const hugoState = {};
-function setHugo(d,cls,color) {
-  hugoState[`${d}-${cls}`] = color;
-  ['merah','biru'].forEach(c => {
-    const btn = document.getElementById(`hbtn-${d}-${cls}-${c}`);
-    if(btn) { btn.className = 'hugo-btn' + (c===color ? (c==='merah'?' active-red':' active-blue') : ''); }
+  // Rounds HTML
+  let roundsHtml='';
+  if(isMulti){
+    const pillsHtml=rounds.map((r,ri)=>{
+      const rName=BABAK_NAMES[ri]||`Babak ${ri+1}`;
+      const resMap={menang:'✅',kalah:'❌',bye:'⏭️'};
+      const ico=resMap[r.result]||'❔';
+      return `<div class="round-pill" data-result="${r.result}" onclick="openRoundModal(${d},'${c.id}',${a.id},${ri})">
+        <span class="round-dot"></span>
+        <span class="round-lbl">${rName}</span>
+        ${r.partai?`<span class="round-partai">#${esc(r.partai)}</span>`:''}
+        <span>${ico}</span>
+      </div>`;
+    }).join('');
+
+    const canAddRound = st!=='gugur';
+    const nextBabak=BABAK_NAMES[rounds.length]||`Babak ${rounds.length+1}`;
+    roundsHtml=`
+    <div class="card-rounds">
+      <div class="rounds-label">Riwayat Tanding</div>
+      <div class="rounds-track">
+        ${pillsHtml}
+        ${canAddRound?`<button class="btn-add-round" onclick="openRoundModal(${d},'${c.id}',${a.id},${rounds.length})">+ ${nextBabak}</button>`:''}
+      </div>
+    </div>`;
+  }
+
+  // Medal select for footer
+  const medalOpts=['Tanpa Medali','Emas','Perak','Perunggu'].map(m=>
+    `<option value="${m}" ${(a.medali||'Tanpa Medali')===m?'selected':''}>${m==='Tanpa Medali'?'—':MEDAL_ICONS[m]+' '+m}</option>`
+  ).join('');
+
+  const lapOpts=LAPANGAN.map(l=>`<option value="${l}" ${(a.lapangan||'A')===l?'selected':''}>Lap ${l}</option>`).join('');
+
+  return `
+  <div class="athlete-card ${st==='gugur'?'gugur':''} ${st==='juara'?'juara':''} ${isMulti?'':'pemula'}" id="acard-${a.id}">
+    <div class="card-header">
+      <span class="card-num">${i+1}</span>
+      <span class="card-under">${esc(a.under)}</span>
+      <span class="card-name">${esc(a.name)}</span>
+      ${medalIcon?`<span class="card-medal-badge">${medalIcon}</span>`:''}
+      <div class="card-actions">
+        <button class="btn-card" onclick="openModal(${d},'${c.id}',${a.id})">✏️</button>
+        <button class="btn-card del" onclick="deleteAthlete(${d},'${c.id}',${a.id})">🗑️</button>
+      </div>
+    </div>
+    ${roundsHtml}
+    <div class="card-footer">
+      ${statusLabel(st)}
+      <span class="card-lapangan">
+        <select style="font-size:11px;padding:3px 6px;width:auto;display:inline;" onchange="updateField(${d},'${c.id}',${a.id},'lapangan',this.value)">
+          ${lapOpts}
+        </select>
+      </span>
+      ${isMulti?`<select style="font-size:11px;padding:3px 6px;width:auto;display:inline;margin-left:4px;" onchange="updateField(${d},'${c.id}',${a.id},'medali',this.value)">${medalOpts}</select>`:''}
+      <span class="card-hugo-display ${hugoColor}" style="margin-left:auto;">${hugoLabel}</span>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  ACTIONS
+// ════════════════════════════════════════════════════════
+const hugoState={};
+function setHugo(d,cls,color){
+  hugoState[`${d}-${cls}`]=color;
+  ['merah','biru'].forEach(c=>{
+    const btn=document.getElementById(`hbtn-${d}-${cls}-${c}`);
+    if(btn) btn.className='hugo-btn'+(c===color?(c==='merah'?' active-red':' active-blue'):'');
   });
 }
-function getHugo(d,cls) { return hugoState[`${d}-${cls}`] || 'merah'; }
+function getHugo(d,cls){return hugoState[`${d}-${cls}`]||'merah';}
 
-// ── ADD ─────────────────────────────────────────────────────────────
-function addAthlete(e, d, cls) {
-  e.preventDefault();
-  const f = e.target;
-  const athlete = {
-    id:     idCounter++,
-    under:  f.under.value.trim(),
-    name:   f.name.value.trim(),
-    partai: f.partai.value.trim(),
-    hugo:   getHugo(d,cls),
-      // Properti Tambahan Baru:
-  status: 'Menunggu', // Pilihan: 'Menunggu', 'Lanjut Babak', 'Gugur'
-  medali: 'Tanpa Medali', // Pilihan: 'Tanpa Medali', 'Emas', 'Perak', 'Perunggu'
-  catatan: '' // Untuk coretan opsional (misal: "Semi Final", "Sakit")
+function addAthlete(d,cls){
+  const under=document.getElementById(`f-under-${d}-${cls}`).value.trim();
+  const name=document.getElementById(`f-name-${d}-${cls}`).value.trim();
+  const partai=document.getElementById(`f-partai-${d}-${cls}`).value.trim();
+  const lapangan=document.getElementById(`f-lap-${d}-${cls}`).value;
+  if(!name){alert('Nama atlit wajib diisi!');return;}
+  const c=CLASSES.find(x=>x.id===cls);
+  const athlete={
+    id:idCounter++, under:under||'-',name,lapangan,
+    hugo:getHugo(d,cls),
+    medali:'Tanpa Medali',
+    rounds: c.multiRound ? [] : null,
+    // Pemula: simpan partai di top-level; multi-round: di setiap babak
+    partai: c.multiRound ? '' : (partai||''),
   };
+  if(c.multiRound && partai){
+    // Auto-add babak 1 dengan partai langsung
+    athlete.rounds.push({partai,result:'pending'});
+  }
   data[d][cls].push(athlete);
   save();
   buildPanel(d);
-  // re-focus form
-  const newForm = document.querySelector(`#sec-${d}-${cls} input[name="name"]`);
-  if(newForm) newForm.focus();
+  // Clear form
+  ['under','name','partai'].forEach(f=>{
+    const el=document.getElementById(`f-${f}-${d}-${cls}`);
+    if(el) el.value='';
+  });
+  document.getElementById(`f-name-${d}-${cls}`)?.focus();
 }
 
-// ── DELETE ──────────────────────────────────────────────────────────
-function deleteAthlete(d,cls,id) {
+function deleteAthlete(d,cls,id){
   if(!confirm('Hapus atlit ini?')) return;
-  data[d][cls] = data[d][cls].filter(a=>a.id!==id);
-  save();
-  buildPanel(d);
+  data[d][cls]=data[d][cls].filter(a=>a.id!==id);
+  save();buildPanel(d);renderMedalRekap();
 }
 
-// ── MODAL EDIT ──────────────────────────────────────────────────────
-function openModal(d,cls,id) {
-  const a = data[d][cls].find(x=>x.id===id);
+function updateField(d,cls,id,field,value){
+  const a=data[d][cls].find(x=>x.id===id);
+  if(a){a[field]=value;save();if(field==='medali'){buildPanel(d);renderMedalRekap();}else{save();}}
+}
+
+function resetDay(d){
+  CLASSES.forEach(c=>{data[d][c.id]=[];});
+  save();buildPanel(d);renderMedalRekap();
+}
+
+// ════════════════════════════════════════════════════════
+//  ROUND MODAL
+// ════════════════════════════════════════════════════════
+function openRoundModal(d,cls,id,roundIdx){
+  const a=data[d][cls].find(x=>x.id===id);
   if(!a) return;
-  editTarget = {d,cls,id};
-  document.getElementById('m-under').value  = a.under;
-  document.getElementById('m-name').value   = a.name;
-  document.getElementById('m-partai').value = a.partai;
-  selectModalHugo(a.hugo);
+  roundTarget={d,cls,id,roundIdx};
+  roundResult=null;
+  const babakName=BABAK_NAMES[roundIdx]||`Babak ${roundIdx+1}`;
+  document.getElementById('round-modal-title').textContent=`⚔️ ${a.name} — ${babakName}`;
+  const existingRound=a.rounds&&a.rounds[roundIdx];
+  document.getElementById('r-partai').value=existingRound?.partai||'';
+  // reset result opts
+  document.querySelectorAll('.result-opt').forEach(el=>el.style.outline='');
+  if(existingRound?.result){
+    selectResult(existingRound.result);
+  } else {
+    document.getElementById('r-selected').textContent='';
+  }
+  document.getElementById('roundModal').classList.add('open');
+}
+
+function closeRoundModal(){
+  document.getElementById('roundModal').classList.remove('open');
+  roundTarget=null;roundResult=null;
+}
+
+function selectResult(r){
+  roundResult=r;
+  document.querySelectorAll('.result-opt').forEach(el=>{
+    el.style.outline=el.classList.contains(r)?'3px solid white':'';
+  });
+  const labels={menang:'✅ MENANG',kalah:'❌ KALAH',bye:'⏭️ BYE / Walkover'};
+  document.getElementById('r-selected').textContent='Dipilih: '+labels[r];
+}
+
+function saveRound(){
+  if(!roundTarget) return;
+  if(!roundResult){alert('Pilih hasil tanding terlebih dahulu!');return;}
+  const {d,cls,id,roundIdx}=roundTarget;
+  const a=data[d][cls].find(x=>x.id===id);
+  if(!a) return;
+  const partai=document.getElementById('r-partai').value.trim();
+  if(!a.rounds) a.rounds=[];
+  const roundData={partai,result:roundResult};
+  if(roundIdx<a.rounds.length) a.rounds[roundIdx]=roundData;
+  else a.rounds.push(roundData);
+  save();buildPanel(d);renderMedalRekap();closeRoundModal();
+}
+
+// ════════════════════════════════════════════════════════
+//  EDIT MODAL
+// ════════════════════════════════════════════════════════
+let editTarget2=null,modalHugo2='merah';
+function openModal(d,cls,id){
+  const a=data[d][cls].find(x=>x.id===id);
+  if(!a) return;
+  editTarget2={d,cls,id};
+  document.getElementById('m-under').value=a.under||'';
+  document.getElementById('m-name').value=a.name||'';
+  document.getElementById('m-lapangan').value=a.lapangan||'A';
+  selectModalHugo(a.hugo||'merah');
   document.getElementById('editModal').classList.add('open');
 }
-function closeModal() {
-  document.getElementById('editModal').classList.remove('open');
-  editTarget = null;
+function closeModal(){document.getElementById('editModal').classList.remove('open');editTarget2=null;}
+function selectModalHugo(color){
+  modalHugo2=color;
+  document.getElementById('m-btn-merah').className='hugo-modal-btn'+(color==='merah'?' sel-red':'');
+  document.getElementById('m-btn-biru').className='hugo-modal-btn'+(color==='biru'?' sel-blue':'');
 }
-function selectModalHugo(color) {
-  modalHugo = color;
-  document.getElementById('m-btn-merah').className = 'hugo-modal-btn' + (color==='merah'?' sel-red':'');
-  document.getElementById('m-btn-biru').className  = 'hugo-modal-btn' + (color==='biru'?' sel-blue':'');
-}
-function saveModal() {
-  if(!editTarget) return;
-  const {d,cls,id} = editTarget;
-  const a = data[d][cls].find(x=>x.id===id);
+function saveModal(){
+  if(!editTarget2) return;
+  const {d,cls,id}=editTarget2;
+  const a=data[d][cls].find(x=>x.id===id);
   if(!a) return;
-  a.under  = document.getElementById('m-under').value.trim();
-  a.name   = document.getElementById('m-name').value.trim();
-  a.partai = document.getElementById('m-partai').value.trim();
-  a.hugo   = modalHugo;
-  save();
-  buildPanel(d);
-  closeModal();
+  a.under=document.getElementById('m-under').value.trim();
+  a.name=document.getElementById('m-name').value.trim();
+  a.lapangan=document.getElementById('m-lapangan').value;
+  a.hugo=modalHugo2;
+  save();buildPanel(d);closeModal();
 }
 
-// ── TOGGLE COLLAPSE ─────────────────────────────────────────────────
-function toggleSection(id) {
-  document.getElementById(id).classList.toggle('collapsed');
-}
-
-// ── DAY SWITCH ──────────────────────────────────────────────────────
-function switchDay(d) {
-  activeDay = d;
-  document.querySelectorAll('.day-panel').forEach((p,i)=>p.classList.toggle('active',i===d));
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===d));
-}
-
-// ── STATS ───────────────────────────────────────────────────────────
-function updateStats() {
-  let total=0, red=0, blue=0;
-  for(let d=0;d<3;d++) CLASSES.forEach(c=>{
-    (data[d][c.id]||[]).forEach(a=>{
-      total++; if(a.hugo==='merah') red++; else blue++;
-    });
-  });
-  document.getElementById('total-atlit').textContent = total;
-  document.getElementById('total-merah').textContent = red;
-  document.getElementById('total-biru').textContent  = blue;
-}
-
-// ── DATE SAVE ───────────────────────────────────────────────────────
-function saveDate(d,val) {
-  const dates = JSON.parse(localStorage.getItem('pms_dates')||'{}');
-  dates[d] = val;
-  localStorage.setItem('pms_dates', JSON.stringify(dates));
-}
-
-// ── PRINT ───────────────────────────────────────────────────────────
-function printDay(d) {
-  switchDay(d);
-  setTimeout(()=>window.print(), 200);
-}
-
-// ── CSV EXPORT ──────────────────────────────────────────────────────
-function exportCSV(d) {
-  let rows = ['Kelas,Under,Nama Atlit,Partai,Hugo'];
-  CLASSES.forEach(c=>{
-    (data[d][c.id]||[]).forEach(a=>{
-      rows.push(`"${c.label}","${a.under}","${a.name}","${a.partai}","${a.hugo}"`);
-    });
-  });
-  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = `pms_dragon_hari${d+1}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-}
-
-// ── ESC CLOSE MODAL ─────────────────────────────────────────────────
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
-document.getElementById('editModal').addEventListener('click', function(e){
-  if(e.target===this) closeModal();
-});
-
-// ── UTILS ────────────────────────────────────────────────────────────
-function escHtml(s='') {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// Fungsi untuk update status secara real-time dari tabel
-function updateMatchStatus(day, cls, id, field, value) {
-  const athlete = data[day][cls].find(x => x.id === id);
-  if (athlete) {
-    athlete[field] = value;
-    
-    // Logic otomatis: Jika menang/lanjut babak, minta user update nomor partai berikutnya jika tahu
-    if (field === 'status' && value === 'Lanjut Babak') {
-      const nextPartai = prompt(`Atlit ${athlete.name} LANJUT. Masukkan nomor partai berikutnya (kosongkan jika belum tahu):`, athlete.partai);
-      if (nextPartai !== null) athlete.partai = nextPartai.trim();
-    }
-    
-    save(); // Menyimpan ke LocalStorage otomatis
-    buildPanel(day); // Refresh tampilan hari tersebut
-    renderMedalRekap(); // Refresh papan medali
-  }
-}
-
-// Fungsi membuat rekapitulasi medali otomatis
-function renderMedalRekap() {
-  let emas = [], perak = [], perunggu = [];
-  
-  // Ambil semua data dari semua hari dan kelas
-  for(let d=0; d<3; d++) {
-    CLASSES.forEach(c => {
-      (data[d][c.id] || []).forEach(a => {
-        if(a.medali === 'Emas') emas.push(`${a.name} (${c.label} Under ${a.under})`);
-        else if(a.medali === 'Perak') perak.push(`${a.name} (${c.label} Under ${a.under})`);
-        else if(a.medali === 'Perunggu') perunggu.push(`${a.name} (${c.label} Under ${a.under})`);
+// ════════════════════════════════════════════════════════
+//  REKAP
+// ════════════════════════════════════════════════════════
+function renderMedalRekap(){
+  let emas=[],perak=[],perunggu=[];
+  for(let d=0;d<3;d++){
+    CLASSES.forEach(c=>{
+      (data[d][c.id]||[]).forEach(a=>{
+        const entry=`${esc(a.name)} <small style="color:var(--muted)">(${c.label} U${esc(a.under)}, ${DAYS[d]})</small>`;
+        if(a.medali==='Emas') emas.push(entry);
+        else if(a.medali==='Perak') perak.push(entry);
+        else if(a.medali==='Perunggu') perunggu.push(entry);
       });
     });
   }
-  
-  // Tampilkan ke elemen HTML Rekap (Buat div dengan id "papan-medali" di HTML Anda)
-  const container = document.getElementById('papan-medali');
+  const container=document.getElementById('papan-medali');
   if(!container) return;
-  
-  container.innerHTML = `
-    <div style="background:var(--card); border:1px solid var(--gold); padding:20px; border-radius:12px; margin-top:20px;">
-      <h3 style="font-family:'Oswald'; color:var(--gold-lt); margin-bottom:12px;">🏆 REKAPITULASI PEROLEHAN MEDAL</h3>
-      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px;">
-        <div><strong>🥇 EMAS (${emas.length})</strong><ul style="padding-left:15px; font-size:13px;">${emas.map(x=>`<li>${x}</li>`).join('')||'<li>Belum ada</li>'}</ul></div>
-        <div><strong>🥈 PERAK (${perak.length})</strong><ul style="padding-left:15px; font-size:13px;">${perak.map(x=>`<li>${x}</li>`).join('')||'<li>Belum ada</li>'}</ul></div>
-        <div><strong>🥉 PERUNGGU (${perunggu.length})</strong><ul style="padding-left:15px; font-size:13px;">${perunggu.map(x=>`<li>${x}</li>`).join('')||'<li>Belum ada</li>'}</ul></div>
+  container.innerHTML=`
+    <div class="rekap-panel">
+      <div class="rekap-title">🏆 Perolehan Medali — PMS Dragon Surakarta</div>
+      <div class="rekap-grid">
+        <div class="rekap-col">
+          <div class="rekap-col-title" style="color:var(--gold-lt)">🥇 EMAS (${emas.length})</div>
+          <ul>${emas.map(x=>`<li>${x}</li>`).join('')||'<li style="font-style:italic">Belum ada</li>'}</ul>
+        </div>
+        <div class="rekap-col">
+          <div class="rekap-col-title" style="color:#C0C0C0">🥈 PERAK (${perak.length})</div>
+          <ul>${perak.map(x=>`<li>${x}</li>`).join('')||'<li style="font-style:italic">Belum ada</li>'}</ul>
+        </div>
+        <div class="rekap-col">
+          <div class="rekap-col-title" style="color:#CD7F32">🥉 PERUNGGU (${perunggu.length})</div>
+          <ul>${perunggu.map(x=>`<li>${x}</li>`).join('')||'<li style="font-style:italic">Belum ada</li>'}</ul>
+        </div>
       </div>
     </div>
   `;
 }
-// Fungsi untuk menyimpan pilihan Lapangan (Court) per kelas ke LocalStorage
-function saveField(day, cls, fieldLetter) {
-  const fields = JSON.parse(localStorage.getItem('pms_fields') || '{}');
-  fields[`${day}-${cls}`] = fieldLetter;
-  localStorage.setItem('pms_fields', JSON.stringify(fields));
-  // Opsional: jalankan fungsi rekap pementasan terdekat jika ada
+
+// ════════════════════════════════════════════════════════
+//  MISC
+// ════════════════════════════════════════════════════════
+function switchDay(d){
+  activeDay=d;
+  document.querySelectorAll('.day-panel').forEach((p,i)=>p.classList.toggle('active',i===d));
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===d));
+}
+function toggleSection(id){document.getElementById(id).classList.toggle('collapsed');}
+function updateStats(){
+  let total=0,red=0,blue=0;
+  for(let d=0;d<3;d++) CLASSES.forEach(c=>{
+    (data[d][c.id]||[]).forEach(a=>{total++;if(a.hugo==='merah')red++;else blue++;});
+  });
+  document.getElementById('total-atlit').textContent=total;
+  document.getElementById('total-merah').textContent=red;
+  document.getElementById('total-biru').textContent=blue;
+}
+function saveDate(d,val){
+  const dates=JSON.parse(localStorage.getItem('pms_dates')||'{}');
+  dates[d]=val;localStorage.setItem('pms_dates',JSON.stringify(dates));
+}
+function printDay(d){switchDay(d);setTimeout(()=>window.print(),200);}
+function exportCSV(d){
+  if(d>=3){alert('Pilih hari terlebih dahulu (Hari 1-3) untuk export CSV.');return;}
+  let rows=['Kelas,Under,Nama Atlit,Lapangan,Hugo,Babak,Partai,Hasil,Medali'];
+  CLASSES.forEach(c=>{
+    (data[d][c.id]||[]).forEach(a=>{
+      const rounds=a.rounds&&a.rounds.length?a.rounds:[{partai:a.partai||'',result:''}];
+      rounds.forEach((r,ri)=>{
+        rows.push(`"${c.label}","${a.under}","${a.name}","${a.lapangan||'A'}","${a.hugo}","Babak ${ri+1}","${r.partai||''}","${r.result||''}","${a.medali||''}"`);
+      });
+    });
+  });
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;link.download=`pms_dragon_hari${d+1}.csv`;link.click();URL.revokeObjectURL(url);
 }
 
+// Close modals on outside click / ESC
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeRoundModal();}});
+document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('roundModal').addEventListener('click',function(e){if(e.target===this)closeRoundModal();});
 
-
-// ── INIT ─────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
 load();
 buildAllPanels();
 updateStats();
