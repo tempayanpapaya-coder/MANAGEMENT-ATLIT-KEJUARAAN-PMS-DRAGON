@@ -103,9 +103,7 @@ main{max-width:1100px;margin:0 auto;padding:16px 16px calc(80px + var(--safe-bot
 .class-section.collapsed .toggle-icon{transform:rotate(-90deg);}
 .class-section.collapsed .class-body{display:none;}
 
-/* ═══ ADD FORM ══════════════════════════════════════════ */
-.add-form{padding:14px 16px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);}
-.add-form-title{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+/* ═══ FORM FIELDS (shared) ═══════════════════════════════ */
 .form-grid{display:grid;grid-template-columns:80px 1fr 75px;gap:8px;margin-bottom:8px;}
 .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
 .form-group{display:flex;flex-direction:column;gap:4px;}
@@ -117,10 +115,67 @@ select option{background:var(--card);}
 .hugo-btn{padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;background:var(--card);color:var(--muted);text-align:center;}
 .hugo-btn.active-red{background:var(--red-bg);border-color:var(--red);color:var(--red);}
 .hugo-btn.active-blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-lt);}
-.btn-add-main{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;transition:all .2s;margin-top:4px;}
+@media(max-width:560px){.form-grid{grid-template-columns:70px 1fr 65px;gap:6px;}}
+
+/* ═══ TOMBOL + ATLIT (di bawah list) ════════════════════ */
+.btn-add-atlit{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:12px;margin:4px 0 14px;
+  background:transparent;border:2px dashed var(--red);
+  border-radius:var(--radius);
+  font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1.5px;
+  color:var(--red);cursor:pointer;transition:all .2s;
+}
+.btn-add-atlit:hover{background:var(--red-bg);}
+.btn-add-atlit .plus-icon{font-size:20px;line-height:1;}
+
+/* ═══ ADD MODAL (drawer bawah di mobile) ════════════════ */
+.add-modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);z-index:150;
+  align-items:flex-end;justify-content:center;
+}
+.add-modal-overlay.open{display:flex;}
+.add-modal{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-top:3px solid var(--red);
+  border-radius:14px 14px 0 0;
+  padding:20px 20px calc(20px + var(--safe-bottom));
+  width:min(560px, 100%);
+  max-height:92vh;overflow-y:auto;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.add-modal-handle{
+  width:40px;height:4px;background:var(--border2);
+  border-radius:2px;margin:0 auto 18px;
+}
+.add-modal-title{
+  font-family:'Oswald',sans-serif;font-size:17px;letter-spacing:1px;
+  color:var(--gold-lt);margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-add-main{
+  width:100%;background:var(--red);color:#fff;border:none;
+  border-radius:var(--radius-sm);padding:14px;
+  font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;margin-top:8px;
+}
 .btn-add-main:hover{background:var(--red-dark);}
 .btn-add-main:disabled{background:var(--muted2);cursor:not-allowed;}
-@media(max-width:560px){.form-grid{grid-template-columns:70px 1fr 65px;gap:6px;}}
+.btn-add-cancel{
+  width:100%;background:transparent;color:var(--muted);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:11px;font-family:'Oswald',sans-serif;font-size:13px;
+  cursor:pointer;margin-top:6px;
+}
+/* On desktop: center as a dialog instead of bottom sheet */
+@media(min-width:600px){
+  .add-modal-overlay{align-items:center;}
+  .add-modal{border-radius:14px;border-top:1px solid var(--border);border-left:1px solid var(--red);border-right:1px solid var(--red);}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+}
 
 /* ═══ ATHLETE CARDS ═════════════════════════════════════ */
 .athletes-list{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
@@ -282,6 +337,36 @@ select option{background:var(--card);}
 <div class="fab-bar">
   <button class="btn-fab outline" onclick="window.print()">🖨️</button>
   <button class="btn-fab outline" onclick="exportCSV(activeDay)">📥 CSV</button>
+</div>
+
+<!-- ADD ATLIT MODAL (bottom-sheet) -->
+<div class="add-modal-overlay" id="addModal">
+  <div class="add-modal">
+    <div class="add-modal-handle"></div>
+    <div class="add-modal-title" id="add-modal-title">➕ Tambah Atlit</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Under (kg)</label><input type="text" id="am-under" placeholder="-45"/></div>
+      <div class="form-group"><label>Nama Atlit</label><input type="text" id="am-name" placeholder="Nama lengkap"/></div>
+      <div class="form-group"><label>No. Partai</label><input type="text" id="am-partai" placeholder="12"/></div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label>Lapangan</label>
+        <select id="am-lap">
+          <option value="A">Lapangan A</option><option value="B">Lapangan B</option>
+          <option value="C">Lapangan C</option><option value="D">Lapangan D</option>
+          <option value="E">Lapangan E</option><option value="F">Lapangan F</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Warna Hugo</label>
+        <div class="hugo-toggle">
+          <button type="button" class="hugo-btn active-red" id="am-hugo-merah" onclick="setAddModalHugo('merah')">🔴 Merah</button>
+          <button type="button" class="hugo-btn" id="am-hugo-biru" onclick="setAddModalHugo('biru')">🔵 Biru</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn-add-main" onclick="addAthlete()">✚ TAMBAH ATLIT</button>
+    <button class="btn-add-cancel" onclick="closeAddModal()">Batal</button>
+  </div>
 </div>
 
 <!-- EDIT MODAL -->
@@ -581,37 +666,17 @@ function buildClass(d, c) {
       <span class="toggle-icon">▼</span>
     </div>
     <div class="class-body">
-      ${buildAddForm(d, c)}
       <div class="athletes-list">${cardsHtml}</div>
+      <div style="padding:0 16px;">
+        <button class="btn-add-atlit" onclick="openAddModal(${d},'${c.id}')">
+          <span class="plus-icon">＋</span> TAMBAH ATLIT ${c.label.toUpperCase()}
+        </button>
+      </div>
     </div>
   </div>`;
 }
 
-function buildAddForm(d, c) {
-  return `
-  <div class="add-form">
-    <div class="add-form-title">➕ Tambah Atlit ${c.label}</div>
-    <div class="form-grid">
-      <div class="form-group"><label>Under (kg)</label><input type="text" placeholder="-45" id="f-under-${d}-${c.id}"/></div>
-      <div class="form-group"><label>Nama Atlit</label><input type="text" placeholder="Nama lengkap" id="f-name-${d}-${c.id}"/></div>
-      <div class="form-group"><label>No. Partai</label><input type="text" placeholder="12" id="f-partai-${d}-${c.id}"/></div>
-    </div>
-    <div class="form-grid-2">
-      <div class="form-group"><label>Lapangan</label>
-        <select id="f-lap-${d}-${c.id}">
-          ${LAPANGAN.map(l => `<option value="${l}">Lapangan ${l}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group"><label>Warna Hugo</label>
-        <div class="hugo-toggle">
-          <button type="button" class="hugo-btn active-red" id="hbtn-${d}-${c.id}-merah" onclick="setHugo('${d}','${c.id}','merah')">🔴 Merah</button>
-          <button type="button" class="hugo-btn" id="hbtn-${d}-${c.id}-biru" onclick="setHugo('${d}','${c.id}','biru')">🔵 Biru</button>
-        </div>
-      </div>
-    </div>
-    <button class="btn-add-main" onclick="addAthlete(${d},'${c.id}')">+ TAMBAH ATLIT</button>
-  </div>`;
-}
+// buildAddForm tidak lagi dipakai — form pindah ke add-modal HTML
 
 function buildAthleteCard(d, c, a, i) {
   const st = getAthleteStatus(a, c.id);
@@ -747,30 +812,54 @@ if (!isMulti) {
 // ════════════════════════════════════════════════════════
 //  ACTIONS (write to local cache → Firestore)
 // ════════════════════════════════════════════════════════
-function setHugo(d, cls, color) {
-  hugoState[`${d}-${cls}`] = color;
+// ── Hugo state untuk add-modal ────────────────────────────
+let addModalTarget = null; // {d, cls}
+let addModalHugo   = 'merah';
+
+function setAddModalHugo(color) {
+  addModalHugo = color;
   ['merah','biru'].forEach(c => {
-    const btn = document.getElementById(`hbtn-${d}-${cls}-${c}`);
+    const btn = document.getElementById(`am-hugo-${c}`);
     if(btn) btn.className = 'hugo-btn' + (c===color ? (c==='merah'?' active-red':' active-blue') : '');
   });
 }
-function getHugo(d, cls) { return hugoState[`${d}-${cls}`] || 'merah'; }
 
-function addAthlete(d, cls) {
-  const under   = document.getElementById(`f-under-${d}-${cls}`)?.value.trim();
-  const name    = document.getElementById(`f-name-${d}-${cls}`)?.value.trim();
-  const partai  = document.getElementById(`f-partai-${d}-${cls}`)?.value.trim();
-  const lapangan= document.getElementById(`f-lap-${d}-${cls}`)?.value || 'A';
+function openAddModal(d, cls) {
+  addModalTarget = {d, cls};
+  addModalHugo   = 'merah';
+  const c = CLASSES.find(x => x.id === cls);
+  // Set judul
+  document.getElementById('add-modal-title').textContent = '➕ Tambah Atlit ' + c.label;
+  // Reset fields
+  ['am-under','am-name','am-partai'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('am-lap').value = 'A';
+  setAddModalHugo('merah');
+  document.getElementById('addModal').classList.add('open');
+  setTimeout(() => document.getElementById('am-name')?.focus(), 150);
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+  addModalTarget = null;
+}
+
+function addAthlete() {
+  if(!addModalTarget) return;
+  const {d, cls} = addModalTarget;
+  const under    = document.getElementById('am-under')?.value.trim();
+  const name     = document.getElementById('am-name')?.value.trim();
+  const partai   = document.getElementById('am-partai')?.value.trim();
+  const lapangan = document.getElementById('am-lap')?.value || 'A';
   if(!name){ alert('Nama atlit wajib diisi!'); return; }
   const c = CLASSES.find(x => x.id === cls);
   const athlete = {
-    id:       Date.now() + Math.floor(Math.random()*1000), // unique across devices
-    under:    under || '-',
+    id:        Date.now() + Math.floor(Math.random()*1000),
+    under:     under || '-',
     name, lapangan,
-    hugo:     getHugo(d, cls),
-    medali:   'Tanpa Medali',
-    rounds:   c.multiRound ? [] : null,
-    partai:   c.multiRound ? '' : (partai || ''),
+    hugo:      addModalHugo,
+    medali:    'Tanpa Medali',
+    rounds:    c.multiRound ? [] : null,
+    partai:    c.multiRound ? '' : (partai || ''),
     createdAt: Date.now(),
   };
   if(c.multiRound && partai) {
@@ -782,9 +871,14 @@ function addAthlete(d, cls) {
   buildPanel(d);
   renderMedalRekap();
   updateStats();
-  ['under','name','partai'].forEach(f => { const el = document.getElementById(`f-${f}-${d}-${cls}`); if(el) el.value = ''; });
-  document.getElementById(`f-name-${d}-${cls}`)?.focus();
+  closeAddModal();
 }
+
+// Hugo state lama (untuk form inline yg sudah tidak dipakai — dibiarkan agar tidak error)
+function setHugo(d, cls, color) {
+  hugoState[`${d}-${cls}`] = color;
+}
+function getHugo(d, cls) { return hugoState[`${d}-${cls}`] || 'merah'; }
 
 function deleteAthlete(d, cls, id) {
   if(!confirm('Hapus atlit ini?')) return;
@@ -973,9 +1067,10 @@ function exportCSV(d) {
 }
 
 // Close modals
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeModal(); closeRoundModal(); }});
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeModal(); closeRoundModal(); closeAddModal(); }});
 document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 document.getElementById('roundModal').addEventListener('click', function(e){ if(e.target===this) closeRoundModal(); });
+document.getElementById('addModal').addEventListener('click', function(e){ if(e.target===this) closeAddModal(); });
 
 // ════════════════════════════════════════════════════════
 //  INIT — start listeners immediately
