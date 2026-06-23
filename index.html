@@ -651,6 +651,77 @@ function buildAthleteCard(d, c, a, i) {
     `<option value="${l}" ${(a.lapangan||'A')===l?'selected':''}>Lap ${l}</option>`
   ).join('');
 
+if (!isMulti) {
+  return `
+  <div class="athlete-card pemula ${st==='gugur'?'gugur':''}" id="acard-${a.id}">
+    <div style="padding:14px">
+
+      <div style="
+        display:inline-block;
+        background:var(--red-bg);
+        border:1px solid var(--red);
+        color:var(--red);
+        border-radius:8px;
+        padding:4px 10px;
+        font-family:'Oswald',sans-serif;
+        font-size:18px;
+        font-weight:700;
+        margin-bottom:8px;
+      ">
+        #${esc(a.partai || '-')}
+      </div>
+
+      <div style="
+        font-size:20px;
+        font-weight:700;
+        margin-bottom:8px;
+        line-height:1.3;
+      ">
+        ${esc(a.name).toUpperCase()}
+      </div>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:10px;
+        font-size:13px;
+      ">
+        <span>Under ${esc(a.under)}</span>
+        <span class="${hugoColor}">${hugoLabel}</span>
+      </div>
+
+      <div class="card-footer">
+        <select style="font-size:11px;padding:4px 6px;width:auto;"
+          onchange="updateField(${d},'${c.id}',${a.id},'lapangan',this.value)">
+          ${lapOpts}
+        </select>
+
+        <select style="font-size:11px;padding:4px 6px;width:auto;"
+          onchange="updateField(${d},'${c.id}',${a.id},'medali',this.value)">
+          ${medalOpts}
+        </select>
+      </div>
+
+      <div class="card-footer" style="justify-content:flex-end">
+        <div class="card-actions" style="margin-left:0">
+          <button class="btn-card"
+            onclick="openModal(${d},'${c.id}',${a.id})">
+            ✏️
+          </button>
+
+          <button class="btn-card del"
+            onclick="deleteAthlete(${d},'${c.id}',${a.id})">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+
   return `
   <div class="athlete-card ${st==='gugur'?'gugur':''} ${st==='juara'?'juara':''} ${isMulti?'':'pemula'}" id="acard-${a.id}">
     <div class="card-header">
