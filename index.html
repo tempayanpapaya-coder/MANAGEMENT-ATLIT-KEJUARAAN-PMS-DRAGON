@@ -210,6 +210,14 @@ select option{background:var(--card);}
 .round-pill[data-result="kalah"] .round-lbl{color:var(--red);}
 .round-pill[data-result="bye"] .round-lbl{color:var(--gold);}
 .round-pill .round-partai{font-weight:700;color:var(--text);font-size:12px;}
+.round-pill .round-ico{font-size:13px;}
+.round-action-lbl{font-size:10px;color:var(--muted2);margin-left:2px;white-space:nowrap;}
+.round-action-lbl.edit{color:var(--border2);}
+/* Pending pill — kuning, berdenyut */
+.round-pill[data-result="pending"]{border-color:rgba(212,160,23,.5);background:rgba(212,160,23,.07);}
+.round-pill[data-result="pending"] .round-dot{background:var(--gold);animation:pulse 1.4s infinite;}
+.round-pill[data-result="pending"] .round-lbl{color:var(--gold);}
+.round-pill[data-result="pending"] .round-action-lbl{color:var(--gold);opacity:.8;}
 .btn-add-round{background:transparent;border:1px dashed var(--border2);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;}
 .btn-add-round:hover{border-color:var(--red);color:var(--red);}
 
@@ -217,6 +225,7 @@ select option{background:var(--card);}
 .card-footer{display:flex;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid var(--border);flex-wrap:wrap;}
 .status-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.5px;}
 .status-badge.menunggu{background:rgba(119,119,119,.15);color:var(--muted);}
+.status-badge.antri{background:rgba(212,160,23,.15);color:var(--gold);border:1px solid rgba(212,160,23,.3);}
 .status-badge.lanjut{background:var(--green-bg);color:var(--green);}
 .status-badge.gugur-badge{background:var(--red-bg);color:var(--red);}
 .status-badge.juara-badge{background:var(--gold-glow);color:var(--gold-lt);border:1px solid var(--gold);}
@@ -422,16 +431,37 @@ header{
   </div>
 </div>
 
-<!-- ROUND MODAL -->
-<div class="modal-overlay" id="roundModal">
+<!-- REGISTER BABAK MODAL (daftar partai, belum ada hasil) -->
+<div class="modal-overlay" id="registerModal">
   <div class="modal">
-    <h2 id="round-modal-title">⚔️ Catat Babak</h2>
+    <h2 id="reg-modal-title">📋 Daftar Babak</h2>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+      Daftarkan atlit ke babak berikutnya. Hasil pertandingan dicatat setelah selesai bertanding.
+    </p>
     <div>
       <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">No. Partai</label>
-      <input type="text" id="r-partai" placeholder="cth: 12" style="margin-top:4px;"/>
+      <input type="text" id="reg-partai" placeholder="cth: 12" style="margin-top:4px;" inputmode="numeric"/>
     </div>
-    <div style="margin-top:14px;">
-      <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;">Hasil Tanding</label>
+    <div class="modal-actions" style="margin-top:20px;">
+      <button class="btn-modal-cancel" onclick="closeRegisterModal()">Batal</button>
+      <button class="btn-modal-save" onclick="saveRegister()">📋 Daftarkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND RESULT MODAL (catat hasil setelah tanding) -->
+<div class="modal-overlay" id="roundModal">
+  <div class="modal">
+    <h2 id="round-modal-title">⚔️ Catat Hasil</h2>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">📋</span>
+      <div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">No. Partai</div>
+        <div id="r-partai-display" style="font-family:'Oswald',sans-serif;font-size:18px;color:var(--gold);font-weight:700;">#—</div>
+      </div>
+    </div>
+    <div>
+      <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:10px;">Hasil Pertandingan</label>
       <div class="round-modal-opts">
         <div class="result-opt menang" onclick="selectResult('menang')">✅<br>MENANG</div>
         <div class="result-opt kalah" onclick="selectResult('kalah')">❌<br>KALAH</div>
@@ -441,7 +471,7 @@ header{
     <div id="r-selected" style="margin-top:12px;font-size:12px;color:var(--muted);min-height:20px;"></div>
     <div class="modal-actions">
       <button class="btn-modal-cancel" onclick="closeRoundModal()">Batal</button>
-      <button class="btn-modal-save" id="btn-round-save" onclick="saveRound()">💾 Simpan Babak</button>
+      <button class="btn-modal-save" id="btn-round-save" onclick="saveRound()">💾 Simpan Hasil</button>
     </div>
   </div>
 </div>
@@ -491,8 +521,8 @@ const MEDAL_ICONS= {Emas:'🥇',Perak:'🥈',Perunggu:'🥉'};
 //   document:   "meta"  → dates: {0:'', 1:'', 2:''}
 let data       = {0:{prestasi:[],semi:[],pemula:[]},1:{prestasi:[],semi:[],pemula:[]},2:{prestasi:[],semi:[],pemula:[]}};
 let activeDay  = 0;
-let editTarget = null, roundTarget = null;
-let modalHugo  = 'merah', roundResult = null;
+let editTarget = null;
+let modalHugo  = 'merah';
 let idCounter  = Date.now(); // use timestamp-based IDs for multi-user safety
 let unsubscribers = []; // Firestore listeners to detach on cleanup
 const hugoState = {};
@@ -635,6 +665,8 @@ function getAthleteStatus(a, cls) {
   if(!c.multiRound) return (a.rounds && a.rounds.length) ? 'lanjut' : 'menunggu';
   if(!a.rounds || !a.rounds.length) return 'menunggu';
   const last = a.rounds[a.rounds.length - 1];
+  // Babak terdaftar tapi belum ada hasil → sedang antri/bertanding
+  if(last.result === 'pending' || !last.result) return 'antri';
   if(last.result === 'kalah') return 'gugur';
   if(a.medali && a.medali !== 'Tanpa Medali') return 'juara';
   return 'lanjut';
@@ -642,7 +674,8 @@ function getAthleteStatus(a, cls) {
 
 function statusLabel(st) {
   const map = {
-    menunggu: '<span class="status-badge menunggu">⏳ Menunggu</span>',
+    menunggu: '<span class="status-badge menunggu">⏳ Belum Terdaftar</span>',
+    antri:    '<span class="status-badge antri">⚔️ Sedang Bertanding</span>',
     lanjut:   '<span class="status-badge lanjut">🟢 Lanjut</span>',
     gugur:    '<span class="status-badge gugur-badge">❌ Gugur</span>',
     juara:    '<span class="status-badge juara-badge">🏆 Juara</span>',
@@ -715,21 +748,37 @@ function buildAthleteCard(d, c, a, i) {
   if(isMulti) {
     const pillsHtml = rounds.map((r, ri) => {
       const rName = BABAK_NAMES[ri] || `Babak ${ri+1}`;
-      const ico = {menang:'✅',kalah:'❌',bye:'⏭️',pending:'❔'}[r.result] || '❔';
-      return `<div class="round-pill" data-result="${r.result||'pending'}" onclick="openRoundModal(${d},'${c.id}',${a.id},${ri})">
+      const isPending = !r.result || r.result === 'pending';
+      // Pill warna & ikon berdasarkan fase
+      const resultMap = {menang:'✅',kalah:'❌',bye:'⏭️'};
+      const ico = isPending ? '⚔️' : (resultMap[r.result] || '❔');
+      const pillResult = isPending ? 'pending' : r.result;
+      // Label aksi di pojok kanan pill
+      const actionLbl = isPending
+        ? `<span class="round-action-lbl">Catat Hasil →</span>`
+        : `<span class="round-action-lbl edit">Ubah</span>`;
+      return `<div class="round-pill" data-result="${pillResult}" onclick="openRoundModal(${d},'${c.id}',${a.id},${ri})">
         <span class="round-dot"></span>
         <span class="round-lbl">${rName}</span>
         ${r.partai ? `<span class="round-partai">#${esc(r.partai)}</span>` : ''}
-        <span>${ico}</span>
+        <span class="round-ico">${ico}</span>
+        ${actionLbl}
       </div>`;
     }).join('');
-    const canAdd = st !== 'gugur';
+
+    // Tombol daftar babak baru HANYA muncul jika:
+    // - Tidak gugur
+    // - Babak terakhir sudah ada hasil (bukan pending)
+    const lastRound = rounds[rounds.length - 1];
+    const lastIsDone = rounds.length === 0 || (lastRound.result && lastRound.result !== 'pending');
+    const canAddNew = st !== 'gugur' && lastIsDone;
     const nextBabak = BABAK_NAMES[rounds.length] || `Babak ${rounds.length+1}`;
+
     roundsHtml = `<div class="card-rounds">
       <div class="rounds-label">Riwayat Tanding</div>
       <div class="rounds-track">
         ${pillsHtml}
-        ${canAdd ? `<button class="btn-add-round" onclick="openRoundModal(${d},'${c.id}',${a.id},${rounds.length})">+ ${nextBabak}</button>` : ''}
+        ${canAddNew ? `<button class="btn-add-round" onclick="openRegisterModal(${d},'${c.id}',${a.id},${rounds.length})">＋ Daftar ${nextBabak}</button>` : ''}
       </div>
     </div>`;
   }
@@ -931,20 +980,62 @@ function resetDay(d) {
 }
 
 // ════════════════════════════════════════════════════════
-//  ROUND MODAL
+//  FASE 1 — DAFTAR BABAK (Register: hanya No. Partai)
 // ════════════════════════════════════════════════════════
+let registerTarget = null;
+
+function openRegisterModal(d, cls, id, roundIdx) {
+  const a = (data[d][cls] || []).find(x => x.id === id);
+  if(!a) return;
+  registerTarget = {d, cls, id, roundIdx};
+  const babakName = BABAK_NAMES[roundIdx] || `Babak ${roundIdx+1}`;
+  document.getElementById('reg-modal-title').textContent = `📋 Daftar ${babakName} — ${a.name}`;
+  document.getElementById('reg-partai').value = '';
+  document.getElementById('registerModal').classList.add('open');
+  setTimeout(() => document.getElementById('reg-partai')?.focus(), 150);
+}
+
+function closeRegisterModal() {
+  document.getElementById('registerModal').classList.remove('open');
+  registerTarget = null;
+}
+
+function saveRegister() {
+  if(!registerTarget) return;
+  const partai = document.getElementById('reg-partai').value.trim();
+  if(!partai) { alert('No. Partai wajib diisi!'); return; }
+  const {d, cls, id, roundIdx} = registerTarget;
+  const a = (data[d][cls] || []).find(x => x.id === id);
+  if(!a) return;
+  if(!a.rounds) a.rounds = [];
+  const roundData = {partai, result: 'pending'};
+  if(roundIdx < a.rounds.length) a.rounds[roundIdx] = roundData;
+  else a.rounds.push(roundData);
+  saveDay(d);
+  buildPanel(d);
+  renderMedalRekap();
+  closeRegisterModal();
+}
+
+// ════════════════════════════════════════════════════════
+//  FASE 2 — CATAT HASIL (setelah pertandingan selesai)
+// ════════════════════════════════════════════════════════
+let roundTarget = null, roundResult = null;
+
 function openRoundModal(d, cls, id, roundIdx) {
   const a = (data[d][cls] || []).find(x => x.id === id);
   if(!a) return;
+  const existing = a.rounds && a.rounds[roundIdx];
+  // Jika babak belum terdaftar → arahkan ke Register dulu
+  if(!existing) { openRegisterModal(d, cls, id, roundIdx); return; }
   roundTarget = {d, cls, id, roundIdx};
   roundResult = null;
   const babakName = BABAK_NAMES[roundIdx] || `Babak ${roundIdx+1}`;
   document.getElementById('round-modal-title').textContent = `⚔️ ${a.name} — ${babakName}`;
-  const existing = a.rounds && a.rounds[roundIdx];
-  document.getElementById('r-partai').value = existing?.partai || '';
+  document.getElementById('r-partai-display').textContent = existing.partai ? `#${existing.partai}` : '#—';
   document.querySelectorAll('.result-opt').forEach(el => el.classList.remove('selected'));
   document.getElementById('r-selected').textContent = '';
-  if(existing?.result && existing.result !== 'pending') selectResult(existing.result);
+  if(existing.result && existing.result !== 'pending') selectResult(existing.result);
   document.getElementById('roundModal').classList.add('open');
 }
 
@@ -956,21 +1047,18 @@ function closeRoundModal() {
 function selectResult(r) {
   roundResult = r;
   document.querySelectorAll('.result-opt').forEach(el => el.classList.toggle('selected', el.classList.contains(r)));
-  const labels = {menang:'✅ MENANG',kalah:'❌ KALAH',bye:'⏭️ BYE'};
-  document.getElementById('r-selected').textContent = 'Dipilih: ' + labels[r];
+  const labels = {menang:'✅ MENANG',kalah:'❌ KALAH',bye:'⏭️ BYE / Walkover'};
+  document.getElementById('r-selected').textContent = 'Dipilih: ' + (labels[r] || r);
 }
 
 function saveRound() {
-  if(!roundTarget){ return; }
-  if(!roundResult){ alert('Pilih hasil tanding terlebih dahulu!'); return; }
+  if(!roundTarget) return;
+  if(!roundResult) { alert('Pilih hasil pertandingan terlebih dahulu!'); return; }
   const {d, cls, id, roundIdx} = roundTarget;
   const a = (data[d][cls] || []).find(x => x.id === id);
-  if(!a) return;
-  const partai = document.getElementById('r-partai').value.trim();
-  if(!a.rounds) a.rounds = [];
-  const roundData = {partai, result: roundResult};
-  if(roundIdx < a.rounds.length) a.rounds[roundIdx] = roundData;
-  else a.rounds.push(roundData);
+  if(!a || !a.rounds || !a.rounds[roundIdx]) return;
+  // Pertahankan partai, hanya update result
+  a.rounds[roundIdx].result = roundResult;
   saveDay(d);
   buildPanel(d);
   renderMedalRekap();
@@ -1092,10 +1180,11 @@ function exportCSV(d) {
 }
 
 // Close modals
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeModal(); closeRoundModal(); closeAddModal(); }});
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeModal(); closeRoundModal(); closeAddModal(); closeRegisterModal(); }});
 document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 document.getElementById('roundModal').addEventListener('click', function(e){ if(e.target===this) closeRoundModal(); });
 document.getElementById('addModal').addEventListener('click', function(e){ if(e.target===this) closeAddModal(); });
+document.getElementById('registerModal').addEventListener('click', function(e){ if(e.target===this) closeRegisterModal(); });
 
 // ════════════════════════════════════════════════════════
 //  INIT — start listeners immediately
