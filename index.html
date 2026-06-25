@@ -293,6 +293,38 @@ select option{background:var(--card);}
   .athlete-card{border:1px solid #ccc;margin-bottom:6px;break-inside:avoid;}
 }
 
+/* ═══ PIAGAM FILTER BUTTONS ══════════════════════════════ */
+.piagam-filter-btn{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  color:var(--muted);font-family:'Oswald',sans-serif;font-size:12px;
+  letter-spacing:.8px;padding:7px 16px;cursor:pointer;transition:all .2s;
+}
+.piagam-filter-btn:hover{border-color:var(--gold);color:var(--gold);}
+.piagam-filter-btn.active{background:var(--gold-glow);border-color:var(--gold);color:var(--gold-lt);}
+
+/* ═══ PIAGAM CARD ════════════════════════════════════════ */
+.piagam-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  margin-bottom:10px;transition:all .3s;
+}
+.piagam-card.sudah{border-color:var(--green);opacity:.7;}
+.piagam-card.sudah .piagam-name{text-decoration:line-through;color:var(--muted);}
+.piagam-medal-icon{font-size:28px;flex-shrink:0;}
+.piagam-info{flex:1;min-width:0;}
+.piagam-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.piagam-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+.piagam-day-badge{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;margin-right:4px;}
+.btn-piagam-toggle{
+  flex-shrink:0;padding:10px 16px;border-radius:var(--radius-sm);border:2px solid;
+  font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.8px;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.btn-piagam-toggle.belum{background:transparent;border-color:var(--border2);color:var(--muted);}
+.btn-piagam-toggle.belum:hover{border-color:var(--green);color:var(--green);background:var(--green-bg);}
+.btn-piagam-toggle.sudah{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.btn-piagam-toggle.sudah:hover{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+
 .header-banner{
     width:100%;
     display:block;
@@ -346,10 +378,11 @@ header{
 <!-- TABS -->
 <div class="tabs-wrap">
   <div class="tabs-bar">
-    <button class="tab-btn active" onclick="switchDay(0)">📅 Hari 1</button>
-    <button class="tab-btn" onclick="switchDay(1)">📅 Hari 2</button>
-    <button class="tab-btn" onclick="switchDay(2)">📅 Hari 3</button>
-    <button class="tab-btn" onclick="switchDay(3)">🏆 Rekap</button>
+    <button class="tab-btn active" data-day="0" onclick="switchDay(0)">📅 Hari 1</button>
+    <button class="tab-btn" data-day="1" onclick="switchDay(1)">📅 Hari 2</button>
+    <button class="tab-btn" data-day="2" onclick="switchDay(2)">📅 Hari 3</button>
+    <button class="tab-btn" data-day="4" onclick="switchDay(4)">🎖️ Piagam</button>
+    <button class="tab-btn" data-day="3" onclick="switchDay(3)">🏆 Rekap</button>
   </div>
 </div>
 
@@ -364,6 +397,26 @@ header{
   <div id="day-3" class="day-panel">
     <div style="padding:12px 0 16px;"><div style="font-family:'Oswald',sans-serif;font-size:20px;color:var(--gold-lt);letter-spacing:2px;">🏆 REKAP MEDALI</div></div>
     <div id="papan-medali"><div class="loading-state"><div class="spinner"></div><p>Memuat rekap...</p></div></div>
+  </div>
+  <div id="day-4" class="day-panel">
+    <div style="padding:12px 0 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div style="font-family:'Oswald',sans-serif;font-size:20px;color:var(--gold-lt);letter-spacing:2px;">🎖️ PENGAMBILAN PIAGAM</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div id="piagam-counter" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:13px;color:var(--muted);">— dari — diambil</div>
+        <button class="btn-tool" onclick="exportPiagamCSV()">📥 Export CSV</button>
+      </div>
+    </div>
+    <!-- Filter Bar -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="piagam-filter-btn active" data-filter="all" onclick="setPiagamFilter('all')">Semua</button>
+      <button class="piagam-filter-btn" data-filter="belum" onclick="setPiagamFilter('belum')">⏳ Belum Diambil</button>
+      <button class="piagam-filter-btn" data-filter="sudah" onclick="setPiagamFilter('sudah')">✅ Sudah Diambil</button>
+    </div>
+    <!-- Search -->
+    <div style="margin-bottom:14px;">
+      <input type="text" id="piagam-search" placeholder="🔍 Cari nama atlit..." oninput="renderPiagamPanel()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 14px;width:100%;outline:none;"/>
+    </div>
+    <div id="piagam-list"></div>
   </div>
 </main>
 
@@ -617,6 +670,7 @@ function startListeners() {
             buildPanel(d);
             renderMedalRekap();
             updateStats();
+            if(activeDay === 4) renderPiagamPanel();
             // Flash indicator if change came from another device
             if(!snap.metadata.hasPendingWrites && !snap.metadata.fromCache) {
               showSync('saving', '🔄 Data diperbarui oleh official lain');
@@ -1137,12 +1191,139 @@ function renderMedalRekap() {
 }
 
 // ════════════════════════════════════════════════════════
+//  PENGAMBILAN PIAGAM
+// ════════════════════════════════════════════════════════
+let piagamFilter = 'all';
+let piagamData   = {}; // keyed by athlete unique key → {sudah: bool, takenAt: string}
+
+// Load piagam status from Firestore once
+function loadPiagamData() {
+  db.collection('pms_days').doc('piagam')
+    .onSnapshot(snap => {
+      if(snap.exists) piagamData = snap.data() || {};
+      else piagamData = {};
+      if(activeDay === 4) renderPiagamPanel();
+    }, ()=>{});
+}
+
+function savePiagamData() {
+  db.collection('pms_days').doc('piagam').set(piagamData, {merge:true}).catch(console.error);
+}
+
+function setPiagamFilter(f) {
+  piagamFilter = f;
+  document.querySelectorAll('.piagam-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  renderPiagamPanel();
+}
+
+function getAllMedalists() {
+  const list = [];
+  for(let d=0; d<3; d++) {
+    CLASSES.forEach(c => {
+      (data[d][c.id] || []).forEach(a => {
+        if(a.medali && a.medali !== 'Tanpa Medali') {
+          list.push({ d, cls: c, a, key: `${d}_${c.id}_${a.id}` });
+        }
+      });
+    });
+  }
+  return list;
+}
+
+function togglePiagam(key) {
+  const curr = piagamData[key] || {sudah: false};
+  if(!curr.sudah) {
+    piagamData[key] = { sudah: true, takenAt: new Date().toLocaleString('id-ID') };
+    showSync('saving', '✅ Piagam ditandai sudah diambil');
+  } else {
+    piagamData[key] = { sudah: false, takenAt: '' };
+    showSync('saving', '↩️ Piagam ditandai belum diambil');
+  }
+  setTimeout(hideSync, 1800);
+  savePiagamData();
+  renderPiagamPanel();
+}
+
+function renderPiagamPanel() {
+  const container = document.getElementById('piagam-list');
+  const searchEl  = document.getElementById('piagam-search');
+  if(!container) return;
+
+  const query = (searchEl ? searchEl.value : '').toLowerCase().trim();
+  let all = getAllMedalists();
+
+  // Search filter
+  if(query) all = all.filter(({a}) => a.name.toLowerCase().includes(query));
+
+  // Status filter
+  if(piagamFilter === 'sudah')  all = all.filter(({key}) => piagamData[key]?.sudah);
+  if(piagamFilter === 'belum')  all = all.filter(({key}) => !piagamData[key]?.sudah);
+
+  const total  = getAllMedalists().length;
+  const taken  = getAllMedalists().filter(({key}) => piagamData[key]?.sudah).length;
+
+  // Update counter
+  const ctr = document.getElementById('piagam-counter');
+  if(ctr) {
+    const pct = total ? Math.round(taken/total*100) : 0;
+    ctr.innerHTML = `<span style="color:var(--green);font-weight:700;">${taken}</span> / ${total} diambil &nbsp;<span style="color:var(--muted);font-size:11px;">(${pct}%)</span>`;
+  }
+
+  if(!all.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎖️</div><p>${total===0?'Belum ada atlit bermedali.':'Tidak ada data sesuai filter.'}</p></div>`;
+    return;
+  }
+
+  container.innerHTML = all.map(({d, cls, a, key}) => {
+    const status = piagamData[key]?.sudah ? 'sudah' : 'belum';
+    const takenAt = piagamData[key]?.takenAt || '';
+    const medalIcon = {Emas:'🥇',Perak:'🥈',Perunggu:'🥉'}[a.medali] || '🏅';
+    const btnLabel = status === 'sudah'
+      ? `✅ Sudah Diambil${takenAt ? `<br><span style="font-size:9px;font-weight:400;opacity:.7;">${takenAt}</span>` : ''}`
+      : `Tandai Diambil`;
+    return `
+    <div class="piagam-card ${status}" id="pc-${key}">
+      <div class="piagam-medal-icon">${medalIcon}</div>
+      <div class="piagam-info">
+        <div class="piagam-name">${esc(a.name)}</div>
+        <div class="piagam-meta">
+          <span class="piagam-day-badge">${DAYS[d]}</span>
+          <span class="piagam-day-badge">${cls.label}</span>
+          Under ${esc(a.under)} · <strong style="color:${a.medali==='Emas'?'var(--gold)':a.medali==='Perak'?'#C0C0C0':'#CD7F32'}">${a.medali}</strong>
+        </div>
+      </div>
+      <button class="btn-piagam-toggle ${status}" onclick="togglePiagam('${key}')">${btnLabel}</button>
+    </div>`;
+  }).join('');
+}
+
+function exportPiagamCSV() {
+  const all = getAllMedalists();
+  let rows = ['Hari,Kelas,Nama,Under,Medali,Status,Waktu Diambil'];
+  all.forEach(({d, cls, a, key}) => {
+    const st = piagamData[key]?.sudah ? 'Sudah Diambil' : 'Belum Diambil';
+    const at = piagamData[key]?.takenAt || '-';
+    rows.push(`"${DAYS[d]}","${cls.label}","${a.name}","${a.under}","${a.medali}","${st}","${at}"`);
+  });
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = 'pengambilan_piagam.csv'; link.click();
+  URL.revokeObjectURL(url);
+}
+
+// ════════════════════════════════════════════════════════
 //  MISC
 // ════════════════════════════════════════════════════════
 function switchDay(d) {
   activeDay = d;
-  document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i===d));
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===d));
+  // Aktifkan panel berdasarkan id, bukan posisi index
+  document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('day-' + d);
+  if(target) target.classList.add('active');
+  // Aktifkan tab berdasarkan data-day attribute
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.day == d));
+  if(d === 4) renderPiagamPanel();
 }
 function toggleSection(id) { document.getElementById(id).classList.toggle('collapsed'); }
 function updateStats() {
@@ -1190,6 +1371,7 @@ document.getElementById('registerModal').addEventListener('click', function(e){ 
 //  INIT — start listeners immediately
 // ════════════════════════════════════════════════════════
 startListeners();
+loadPiagamData();
 updateStats();
 </script>
 </body>
