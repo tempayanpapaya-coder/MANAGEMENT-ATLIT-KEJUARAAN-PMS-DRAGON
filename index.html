@@ -1368,6 +1368,279 @@ document.getElementById('addModal').addEventListener('click', function(e){ if(e.
 document.getElementById('registerModal').addEventListener('click', function(e){ if(e.target===this) closeRegisterModal(); });
 
 // ════════════════════════════════════════════════════════
+//  SHUTDOWN NOTICE
+// ════════════════════════════════════════════════════════
+(function() {
+  const SHUTDOWN_DATE = new Date('2026-06-29T00:00:00');
+  const STORAGE_KEY   = 'pms_notice_dismissed_v2';
+
+  function pad(n) { return String(n).padStart(2,'0'); }
+
+  function getCountdown() {
+    const diff = SHUTDOWN_DATE - Date.now();
+    if (diff <= 0) return null;
+    const totalSec = Math.floor(diff / 1000);
+    const d = Math.floor(totalSec / 86400);
+    const h = Math.floor((totalSec % 86400) / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return { d, h, m, s };
+  }
+
+  function dismiss() {
+    sessionStorage.setItem(STORAGE_KEY, '1');
+    const el = document.getElementById('shutdown-notice');
+    if (el) { el.style.animation = 'noticeOut .4s ease forwards'; setTimeout(() => el.remove(), 400); }
+  }
+
+  function buildNotice() {
+    // Jika sudah lewat tanggal shutdown, tidak tampilkan
+    if (Date.now() >= SHUTDOWN_DATE) return;
+    // Jika sudah dismiss di sesi ini, tidak tampilkan
+    if (sessionStorage.getItem(STORAGE_KEY)) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'shutdown-notice';
+    overlay.innerHTML = `
+      <div id="sn-box">
+        <div id="sn-dragon">🐉</div>
+        <div id="sn-title">PEMBERITAHUAN PENTING</div>
+        <div id="sn-msg">Aplikasi ini akan <span id="sn-highlight">non-aktif otomatis</span> pada<br>
+          <strong>Senin, 29 Juni 2026</strong></div>
+        <div id="sn-countdown-wrap">
+          <div class="sn-unit"><span class="sn-num" id="sn-d">00</span><span class="sn-lbl">HARI</span></div>
+          <div class="sn-sep">:</div>
+          <div class="sn-unit"><span class="sn-num" id="sn-h">00</span><span class="sn-lbl">JAM</span></div>
+          <div class="sn-sep">:</div>
+          <div class="sn-unit"><span class="sn-num" id="sn-m">00</span><span class="sn-lbl">MENIT</span></div>
+          <div class="sn-sep">:</div>
+          <div class="sn-unit"><span class="sn-num" id="sn-s">00</span><span class="sn-lbl">DETIK</span></div>
+        </div>
+        <div id="sn-thanks">Terimakasih telah menggunakan PMS Dragon Surakarta 🙏</div>
+        <button id="sn-btn" onclick="(function(){sessionStorage.setItem('pms_notice_dismissed_v2','1');var el=document.getElementById('shutdown-notice');if(el){el.style.animation='noticeOut .4s ease forwards';setTimeout(function(){el.remove()},400);}})()">LANJUT KE APLIKASI →</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Tick countdown
+    function tick() {
+      const c = getCountdown();
+      if (!c) { document.getElementById('shutdown-notice')?.remove(); return; }
+      document.getElementById('sn-d').textContent = pad(c.d);
+      document.getElementById('sn-h').textContent = pad(c.h);
+      document.getElementById('sn-m').textContent = pad(c.m);
+      document.getElementById('sn-s').textContent = pad(c.s);
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // Inject CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    #shutdown-notice {
+      position:fixed;inset:0;z-index:9999;
+      background:rgba(10,10,10,.92);
+      backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+      display:flex;align-items:center;justify-content:center;
+      padding:16px;
+      animation:noticeIn .5s ease;
+    }
+    @keyframes noticeIn{from{opacity:0;}to{opacity:1;}}
+    @keyframes noticeOut{from{opacity:1;}to{opacity:0;}}
+    #sn-box{
+      background:linear-gradient(160deg,#141414 0%,#1a0408 70%,#141414 100%);
+      border:1px solid var(--border);
+      border-top:3px solid var(--red);
+      border-radius:16px;
+      padding:32px 28px 28px;
+      max-width:440px;width:100%;
+      text-align:center;
+      box-shadow:0 0 80px rgba(200,16,46,.25);
+      animation:noticeBoxIn .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes noticeBoxIn{from{transform:translateY(30px);opacity:0;}to{transform:none;opacity:1;}}
+    #sn-dragon{font-size:48px;margin-bottom:12px;filter:drop-shadow(0 0 12px rgba(200,16,46,.5));animation:dragonFloat 3s ease-in-out infinite;}
+    @keyframes dragonFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+    #sn-title{
+      font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:4px;
+      color:var(--red);margin-bottom:14px;
+    }
+    #sn-msg{
+      font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;
+      color:var(--text);margin-bottom:22px;
+    }
+    #sn-highlight{color:var(--red);font-weight:700;}
+    #sn-msg strong{color:var(--gold-lt);font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:1px;}
+    #sn-countdown-wrap{
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      background:var(--card);border:1px solid var(--border);
+      border-radius:10px;padding:16px 20px;margin-bottom:20px;
+    }
+    .sn-unit{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:48px;}
+    .sn-num{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:var(--gold);line-height:1;}
+    .sn-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+    .sn-sep{font-family:'Oswald',sans-serif;font-size:28px;color:var(--red);margin-bottom:14px;opacity:.7;}
+    #sn-thanks{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+    #sn-btn{
+      width:100%;background:var(--red);color:#fff;border:none;
+      border-radius:8px;padding:14px;
+      font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;
+      cursor:pointer;transition:all .2s;
+    }
+    #sn-btn:hover{background:var(--red-dark);box-shadow:0 4px 20px rgba(200,16,46,.4);}
+    @media(max-width:400px){
+      #sn-box{padding:24px 18px 20px;}
+      .sn-num{font-size:26px;}
+      .sn-sep{font-size:22px;}
+      .sn-unit{min-width:38px;}
+    }
+  `;
+  document.head.appendChild(style);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', buildNotice);
+  } else {
+    buildNotice();
+  }
+})();
+
+// ════════════════════════════════════════════════════════
+//  ARCHIVE MODE — aktif otomatis setelah 29 Juni 2026
+// ════════════════════════════════════════════════════════
+(function() {
+  const ARCHIVE_DATE = new Date('2026-06-29T00:00:00');
+  const WA_NUMBER    = '62081234567';
+  const WA_MSG       = encodeURIComponent('Halo, saya ingin mengaktifkan kembali atau mengambil data dari PMS Dragon Gubernur Cup.');
+
+  function isExpired() { return Date.now() >= ARCHIVE_DATE; }
+
+  const css = document.createElement('style');
+  css.textContent = `
+    body.ar-frozen main,body.ar-frozen .fab-bar,body.ar-frozen .tabs-wrap{filter:grayscale(1) blur(2px);pointer-events:none;user-select:none;transition:filter 2s ease;}
+    #ar-fab{position:fixed;bottom:28px;right:28px;z-index:9990;width:54px;height:54px;border-radius:50%;background:rgba(20,20,20,.9);border:2px solid #444;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.7);transition:all .3s;backdrop-filter:blur(8px);}
+    #ar-fab:hover{border-color:var(--gold);box-shadow:0 0 24px rgba(212,175,55,.4);}
+    #ar-fab .ar-hint{position:absolute;bottom:calc(100% + 8px);right:0;background:rgba(20,20,20,.95);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;}
+    #ar-fab:hover .ar-hint{opacity:1;}
+    #ar-fab .ar-pip{position:absolute;top:-3px;right:-3px;width:14px;height:14px;background:var(--red);border-radius:50%;border:2px solid #141414;animation:pipPulse 2s infinite;}
+    @keyframes pipPulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:.5;}}
+    #ar-fab svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+    #ar-fab circle.ar-ring{fill:none;stroke:var(--gold);stroke-width:3;stroke-dasharray:0 160;transition:stroke-dasharray .25s ease;}
+    #ar-overlay{position:fixed;inset:0;z-index:9995;background:rgba(6,6,6,.97);backdrop-filter:blur(14px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .5s ease;}
+    #ar-overlay.show{opacity:1;pointer-events:all;}
+    #ar-inner{background:linear-gradient(160deg,#141414 0%,#1a0408 60%,#0d0d0d 100%);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:20px;padding:36px 28px 28px;max-width:460px;width:100%;text-align:center;box-shadow:0 0 100px rgba(212,175,55,.12),0 0 40px rgba(200,16,46,.1);animation:arIn .6s cubic-bezier(.34,1.4,.64,1);}
+    @keyframes arIn{from{transform:translateY(40px);opacity:0;}to{transform:none;opacity:1;}}
+    #ar-seal{font-size:56px;margin-bottom:6px;filter:grayscale(1);animation:sealReveal 1.2s .3s forwards;}
+    @keyframes sealReveal{to{filter:grayscale(0) drop-shadow(0 0 18px rgba(212,175,55,.5));}}
+    #ar-badge{display:inline-block;background:linear-gradient(90deg,var(--red),#7a0000);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:3px;padding:4px 14px;border-radius:20px;margin-bottom:16px;}
+    #ar-title{font-family:'Oswald',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold-lt);margin-bottom:8px;line-height:1.3;}
+    #ar-div{width:60px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:12px auto;}
+    #ar-msg{font-size:14px;line-height:1.8;color:var(--text);margin-bottom:6px;}
+    #ar-msg em{color:var(--muted);font-style:normal;font-size:13px;}
+    #ar-contact{margin:18px 0;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;}
+    .arc-lbl{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+    .arc-name{font-family:'Oswald',sans-serif;font-size:22px;color:var(--gold-lt);letter-spacing:1px;margin-bottom:2px;}
+    .arc-role{font-size:11px;color:var(--muted);}
+    #ar-wa{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#128C7E;color:#fff;border:none;border-radius:10px;padding:14px;margin-top:4px;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;text-decoration:none;transition:all .2s;}
+    #ar-wa:hover{background:#075E54;box-shadow:0 4px 20px rgba(18,140,126,.4);}
+    #ar-close{margin-top:10px;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer;transition:all .2s;width:100%;}
+    #ar-close:hover{border-color:var(--border);color:var(--text);}
+    .ar-particle{position:fixed;pointer-events:none;z-index:9994;animation:pFall linear forwards;}
+    @keyframes pFall{0%{transform:translateY(-30px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+    #ar-banner{position:fixed;top:0;left:0;right:0;z-index:9989;background:linear-gradient(90deg,#7a0000,var(--red),#7a0000);color:#fff;text-align:center;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;padding:7px;display:none;}
+    body.ar-frozen #ar-banner{display:block;}
+  `;
+  document.head.appendChild(css);
+
+  function spawnParticles() {
+    const emojis = ['🥇','🥈','🥉','🏆','⭐','✨','🎖️','🐉'];
+    for (let i = 0; i < 24; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'ar-particle';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.cssText = `left:${Math.random()*100}vw;font-size:${14+Math.random()*20}px;animation-duration:${2+Math.random()*3}s;`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5500);
+      }, i * 110);
+    }
+  }
+
+  let tapCount = 0, tapTimer = null;
+  const TAPS = 3, CIRC = 2 * Math.PI * 24;
+
+  function buildFab() {
+    const fab = document.createElement('div');
+    fab.id = 'ar-fab';
+    fab.innerHTML = `<svg viewBox="0 0 54 54"><circle class="ar-ring" cx="27" cy="27" r="24"/></svg><span>🔑</span><div class="ar-pip"></div><div class="ar-hint">Ketuk ${TAPS}x untuk aktivasi</div>`;
+    fab.addEventListener('click', () => {
+      tapCount++;
+      fab.querySelector('.ar-ring').style.strokeDasharray = `${(tapCount/TAPS)*CIRC} ${CIRC}`;
+      clearTimeout(tapTimer);
+      if (tapCount >= TAPS) {
+        tapCount = 0;
+        fab.querySelector('.ar-ring').style.strokeDasharray = `0 ${CIRC}`;
+        document.getElementById('ar-overlay').classList.add('show');
+      } else {
+        tapTimer = setTimeout(() => { tapCount = 0; fab.querySelector('.ar-ring').style.strokeDasharray = `0 ${CIRC}`; }, 2000);
+      }
+    });
+    document.body.appendChild(fab);
+  }
+
+  function buildOverlay() {
+    const el = document.createElement('div');
+    el.id = 'ar-overlay';
+    el.innerHTML = `<div id="ar-inner">
+      <div id="ar-seal">🏆</div>
+      <div id="ar-badge">KEJUARAAN SELESAI</div>
+      <div id="ar-title">GUBERNUR CUP<br>TELAH BERAKHIR</div>
+      <div id="ar-div"></div>
+      <div id="ar-msg">Aplikasi ini telah mencapai batas aktif dan kini berada dalam <strong style="color:var(--gold)">Mode Arsip</strong>.<br><br>
+        <em>Untuk mengaktifkan kembali atau mengambil data yang tersimpan, hubungi:</em>
+      </div>
+      <div id="ar-contact">
+        <div class="arc-lbl">Administrator</div>
+        <div class="arc-name">Ayahny Alysco</div>
+        <div class="arc-role">Pengelola Sistem PMS Dragon</div>
+      </div>
+      <a id="ar-wa" href="https://wa.me/${WA_NUMBER}?text=${WA_MSG}" target="_blank">💬 Hubungi via WhatsApp</a>
+      <button id="ar-close" onclick="document.getElementById('ar-overlay').classList.remove('show')">Tutup</button>
+    </div>`;
+    document.body.appendChild(el);
+  }
+
+  function buildBanner() {
+    const el = document.createElement('div');
+    el.id = 'ar-banner';
+    el.textContent = '🔒 APLIKASI DALAM MODE ARSIP · GUBERNUR CUP TELAH SELESAI';
+    document.body.appendChild(el);
+  }
+
+  function activateArchiveMode() {
+    spawnParticles();
+    setTimeout(() => {
+      document.body.classList.add('ar-frozen');
+      buildBanner();
+      buildFab();
+      buildOverlay();
+      setTimeout(() => document.getElementById('ar-overlay').classList.add('show'), 900);
+    }, 700);
+  }
+
+  function init() {
+    if (!isExpired()) {
+      const t = setInterval(() => { if (isExpired()) { clearInterval(t); activateArchiveMode(); } }, 60000);
+      return;
+    }
+    activateArchiveMode();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+// ════════════════════════════════════════════════════════
 //  INIT — start listeners immediately
 // ════════════════════════════════════════════════════════
 startListeners();
